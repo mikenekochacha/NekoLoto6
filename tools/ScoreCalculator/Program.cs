@@ -137,6 +137,6 @@ Console.WriteLine($"[INFO] prediction.json 出力完了: {outputPath}");
 // --- HTML生成 ---
 Console.WriteLine($"[INFO] HTML生成開始: {wwwrootDir}");
 HtmlGenerator.GenerateAll(wwwrootDir, results, prediction, latest, lastUpdated);
-Console.WriteLine("[INFO] HTML生成完了: index.html, frequency.html, statistics.html, 404.html");
+Console.WriteLine("[INFO] HTML生成完了: index.html, frequency.html, statistics.html, algorithm.html, 404.html");
 
 return 0;

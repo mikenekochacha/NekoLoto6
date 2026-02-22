@@ -654,3 +654,134 @@ main {
     background: linear-gradient(135deg, #445566, #334455);
     color: #8899aa;
 }
+
+/* === Algorithm Page === */
+.bi-question-circle-nav-menu {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23f5a623' viewBox='0 0 16 16'%3E%3Cpath d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16'/%3E%3Cpath d='M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94'/%3E%3C/svg%3E");
+}
+
+.algo-text {
+    line-height: 1.8;
+    color: #c0c8d0;
+    margin-bottom: 1rem;
+    font-size: 14px;
+}
+
+.algo-indicator {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.algo-indicator-bar {
+    width: 6px;
+    height: 40px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.algo-indicator-content {
+    flex: 1;
+}
+
+.algo-indicator-title {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.algo-indicator-desc {
+    font-size: 13px;
+    color: #8899aa;
+    line-height: 1.6;
+}
+
+.algo-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1a2332;
+    font-size: 13px;
+    margin-bottom: 1rem;
+}
+
+.algo-table th,
+.algo-table td {
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+.algo-table th {
+    background-color: rgba(245, 166, 35, 0.1);
+    color: #f5a623;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.algo-table td {
+    color: #c0c8d0;
+}
+
+.algo-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.algo-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.algo-step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f5a623, #e09520);
+    color: #0f1923;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.algo-step-text {
+    font-size: 14px;
+    color: #c0c8d0;
+    line-height: 28px;
+}
+
+.algo-step-arrow {
+    text-align: center;
+    color: #556677;
+    font-size: 18px;
+    margin: 0 0 4px 8px;
+}
+
+.algo-formula {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    color: #e8e8e8;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-x: auto;
+}
+
+.algo-note {
+    font-size: 12px;
+    color: #667788;
+    line-height: 1.7;
+    margin-bottom: 0.5rem;
+}

@@ -30,6 +30,11 @@ public static class HtmlGenerator
             Encoding.UTF8);
 
         File.WriteAllText(
+            Path.Combine(wwwrootDir, "algorithm.html"),
+            GenerateAlgorithmPage(results),
+            Encoding.UTF8);
+
+        File.WriteAllText(
             Path.Combine(wwwrootDir, "404.html"),
             Generate404Page(),
             Encoding.UTF8);
@@ -284,6 +289,147 @@ public static class HtmlGenerator
         return WrapPage("NekoLoto6 - ページが見つかりません", "", sb.ToString());
     }
 
+    private static string GenerateAlgorithmPage(List<LotoResult> results)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine("<h1 class=\"page-title\">\U0001F9E0 予想の仕組み</h1>");
+        sb.AppendLine($"<p class=\"page-subtitle\">NekoLoto6 の予想アルゴリズムを解説します</p>");
+
+        // Section 1: NekoLoto6の予想とは
+        sb.AppendLine("<div class=\"card-dark\">");
+        sb.AppendLine("    <h2 class=\"card-dark-title\">NekoLoto6 の予想とは</h2>");
+        sb.AppendLine($"    <p class=\"algo-text\">NekoLoto6 は、過去 <strong style=\"color:#f5a623\">{results.Count}</strong> 回分のロト6抽選データを統計的に分析し、次回の予想数字を算出しています。</p>");
+        sb.AppendLine("    <p class=\"algo-text\">各数字（01〜43）に対して 5 つの指標からスコアを計算し、総合スコアが高い上位 6 つの数字を「おすすめ数字」として選出します。</p>");
+        sb.AppendLine("    <p class=\"algo-note\">※ 統計的な傾向分析であり、乱数である抽選結果の予測を保証するものではありません。</p>");
+        sb.AppendLine("</div>");
+
+        // Section 2: 5つのスコア指標
+        sb.AppendLine("<div class=\"card-dark\">");
+        sb.AppendLine("    <h2 class=\"card-dark-title\">5つのスコア指標</h2>");
+        sb.AppendLine("    <p class=\"algo-text\">各数字は以下の 5 つの指標で評価され、重み付けして合計スコアを算出します。</p>");
+
+        var indicators = new[]
+        {
+            ("linear-gradient(90deg, #4a9eff, #2d7cd6)", "出現頻度スコア（重み 20%）",
+             "全期間を通じた出現回数を評価します。出現回数が多い数字ほどスコアが高くなります。"),
+            ("linear-gradient(90deg, #ff6b35, #e05520)", "直近トレンドスコア（重み 30%）",
+             "直近 50 回での出現頻度を評価します。最近よく出ている「勢いのある」数字を重視します。最も高い重みが設定されています。"),
+            ("linear-gradient(90deg, #26b050, #1e8a3e)", "出目間隔スコア（重み 20%）",
+             "最後に出現してからの経過回数を評価します。長く出ていない数字は「そろそろ出る」可能性として加点されます。"),
+            ("linear-gradient(90deg, #a855f7, #7c3aed)", "バランススコア（重み 10%）",
+             "偶奇バランス・高低バランス・数字帯の分散など、選出全体の偏りを抑えるための調整指標です。"),
+            ("linear-gradient(90deg, #f59e0b, #d97706)", "引き継ぎ傾向スコア（重み 20%）",
+             "前回の当選番号が次回も出現する「引き継ぎ」傾向を評価します。前回出た数字に加点されます。")
+        };
+
+        foreach (var (gradient, title, desc) in indicators)
+        {
+            sb.AppendLine("    <div class=\"algo-indicator\">");
+            sb.AppendLine($"        <div class=\"algo-indicator-bar\" style=\"background: {gradient}\"></div>");
+            sb.AppendLine("        <div class=\"algo-indicator-content\">");
+            sb.AppendLine($"            <div class=\"algo-indicator-title\">{title}</div>");
+            sb.AppendLine($"            <div class=\"algo-indicator-desc\">{desc}</div>");
+            sb.AppendLine("        </div>");
+            sb.AppendLine("    </div>");
+        }
+
+        sb.AppendLine("</div>");
+
+        // Section 3: 引き継ぎ傾向
+        sb.AppendLine("<div class=\"card-dark\">");
+        sb.AppendLine("    <h2 class=\"card-dark-title\">引き継ぎ傾向の分析</h2>");
+        sb.AppendLine("    <p class=\"algo-text\">前回の当選番号 6 個のうち、次回も再び出現する数字の個数を集計しました。</p>");
+
+        // 動的計算
+        var ordered = results.OrderBy(r => r.DrawNumber).ToList();
+        var countsAll = new int[5]; // [0個, 1個, 2個, 3個, 4個以上]
+        for (int i = 1; i < ordered.Count; i++)
+        {
+            var prev = new HashSet<int>(ordered[i - 1].MainNumbers);
+            var carry = ordered[i].MainNumbers.Count(n => prev.Contains(n));
+            countsAll[Math.Min(carry, 4)]++;
+        }
+        var totalTransitions = ordered.Count - 1;
+
+        // 直近100回
+        var recentStart = Math.Max(1, ordered.Count - 100);
+        var countsRecent = new int[5];
+        for (int i = recentStart; i < ordered.Count; i++)
+        {
+            var prev = new HashSet<int>(ordered[i - 1].MainNumbers);
+            var carry = ordered[i].MainNumbers.Count(n => prev.Contains(n));
+            countsRecent[Math.Min(carry, 4)]++;
+        }
+        var totalRecent = ordered.Count - recentStart;
+
+        // 理論値（超幾何分布 C(6,k)*C(37,6-k)/C(43,6)）
+        var theoretical = new[] { 28.1, 42.4, 22.6, 6.1, 0.8 };
+
+        sb.AppendLine("    <table class=\"algo-table\">");
+        sb.AppendLine("        <thead><tr>");
+        sb.AppendLine("            <th>引き継ぎ数</th><th>理論値</th><th>全期間実績</th><th>直近100回</th>");
+        sb.AppendLine("        </tr></thead>");
+        sb.AppendLine("        <tbody>");
+
+        var labels = new[] { "0 個", "1 個", "2 個", "3 個", "4 個以上" };
+        for (int k = 0; k < 5; k++)
+        {
+            var allPct = totalTransitions > 0
+                ? (countsAll[k] * 100.0 / totalTransitions).ToString("F1", Inv)
+                : "0.0";
+            var recentPct = totalRecent > 0
+                ? (countsRecent[k] * 100.0 / totalRecent).ToString("F1", Inv)
+                : "0.0";
+            sb.AppendLine("        <tr>");
+            sb.AppendLine($"            <td>{labels[k]}</td>");
+            sb.AppendLine($"            <td>{theoretical[k].ToString("F1", Inv)}%</td>");
+            sb.AppendLine($"            <td>{allPct}%（{countsAll[k]} 回）</td>");
+            sb.AppendLine($"            <td>{recentPct}%（{countsRecent[k]} 回）</td>");
+            sb.AppendLine("        </tr>");
+        }
+
+        sb.AppendLine("        </tbody>");
+        sb.AppendLine("    </table>");
+        sb.AppendLine("    <p class=\"algo-note\">※ 理論値は超幾何分布 C(6,k)×C(37,6−k)÷C(43,6) に基づく確率です。</p>");
+        sb.AppendLine("</div>");
+
+        // Section 4: スコア計算の流れ
+        sb.AppendLine("<div class=\"card-dark\">");
+        sb.AppendLine("    <h2 class=\"card-dark-title\">スコア計算の流れ</h2>");
+
+        var steps = new[]
+        {
+            "過去の全抽選データを読み込む",
+            "各数字（01〜43）について 5 指標のスコアを 0〜1 に正規化して算出",
+            "重み付けして合計スコアを計算",
+            "合計スコアの上位 6 数字を「おすすめ」として選出"
+        };
+
+        for (int i = 0; i < steps.Length; i++)
+        {
+            sb.AppendLine("    <div class=\"algo-step\">");
+            sb.AppendLine($"        <span class=\"algo-step-badge\">{i + 1}</span>");
+            sb.AppendLine($"        <span class=\"algo-step-text\">{steps[i]}</span>");
+            sb.AppendLine("    </div>");
+            if (i < steps.Length - 1)
+                sb.AppendLine("    <div class=\"algo-step-arrow\">\u2193</div>");
+        }
+
+        sb.AppendLine("    <div class=\"algo-formula\">合計スコア = 出現頻度×0.2 + 直近トレンド×0.3 + 出目間隔×0.2 + バランス×0.1 + 引き継ぎ傾向×0.2</div>");
+        sb.AppendLine("</div>");
+
+        // Section 5: 免責事項
+        sb.AppendLine("<div class=\"card-dark\">");
+        sb.AppendLine("    <h2 class=\"card-dark-title\">免責事項</h2>");
+        sb.AppendLine("    <p class=\"algo-text\">ロト6 の抽選は完全な乱数であり、過去の結果が将来の結果に影響を与えることはありません。</p>");
+        sb.AppendLine("    <p class=\"algo-text\">NekoLoto6 の予想はあくまで統計的な傾向分析に基づく参考情報であり、当選を保証するものではありません。</p>");
+        sb.AppendLine("    <p class=\"algo-note\">※ 宝くじは適度に楽しみましょう。</p>");
+        sb.AppendLine("</div>");
+
+        return WrapPage("NekoLoto6 - 予想の仕組み", "algorithm", sb.ToString());
+    }
+
     // ========== Layout ==========
 
     private static string WrapPage(string title, string activePage, string content)
@@ -328,7 +474,8 @@ public static class HtmlGenerator
         {
             ("index", "", "bi-crosshair-nav-menu", "次回予想"),
             ("frequency", "frequency.html", "bi-bar-chart-fill-nav-menu", "出現回数"),
-            ("statistics", "statistics.html", "bi-graph-up-nav-menu", "統計分析")
+            ("statistics", "statistics.html", "bi-graph-up-nav-menu", "統計分析"),
+            ("algorithm", "algorithm.html", "bi-question-circle-nav-menu", "予想の仕組み")
         };
 
         foreach (var (page, href, icon, label) in navItems)

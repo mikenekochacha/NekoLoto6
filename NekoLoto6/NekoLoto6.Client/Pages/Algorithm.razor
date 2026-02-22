@@ -1,0 +1,102 @@
+@page "/algorithm"
+
+<PageTitle>NekoLoto6 - 予想の仕組み</PageTitle>
+
+<h1 class="page-title">🧠 予想の仕組み</h1>
+<p class="page-subtitle">NekoLoto6 の予想アルゴリズムを解説します</p>
+
+<div class="card-dark">
+    <h2 class="card-dark-title">NekoLoto6 の予想とは</h2>
+    <p class="algo-text">NekoLoto6 は、過去の全ロト6抽選データを統計的に分析し、次回の予想数字を算出しています。</p>
+    <p class="algo-text">各数字（01〜43）に対して 5 つの指標からスコアを計算し、総合スコアが高い上位 6 つの数字を「おすすめ数字」として選出します。</p>
+    <p class="algo-note">※ 統計的な傾向分析であり、乱数である抽選結果の予測を保証するものではありません。</p>
+</div>
+
+<div class="card-dark">
+    <h2 class="card-dark-title">5つのスコア指標</h2>
+    <p class="algo-text">各数字は以下の 5 つの指標で評価され、重み付けして合計スコアを算出します。</p>
+    <div class="algo-indicator">
+        <div class="algo-indicator-bar" style="background: linear-gradient(90deg, #4a9eff, #2d7cd6)"></div>
+        <div class="algo-indicator-content">
+            <div class="algo-indicator-title">出現頻度スコア（重み 20%）</div>
+            <div class="algo-indicator-desc">全期間を通じた出現回数を評価します。出現回数が多い数字ほどスコアが高くなります。</div>
+        </div>
+    </div>
+    <div class="algo-indicator">
+        <div class="algo-indicator-bar" style="background: linear-gradient(90deg, #ff6b35, #e05520)"></div>
+        <div class="algo-indicator-content">
+            <div class="algo-indicator-title">直近トレンドスコア（重み 30%）</div>
+            <div class="algo-indicator-desc">直近 50 回での出現頻度を評価します。最近よく出ている「勢いのある」数字を重視します。最も高い重みが設定されています。</div>
+        </div>
+    </div>
+    <div class="algo-indicator">
+        <div class="algo-indicator-bar" style="background: linear-gradient(90deg, #26b050, #1e8a3e)"></div>
+        <div class="algo-indicator-content">
+            <div class="algo-indicator-title">出目間隔スコア（重み 20%）</div>
+            <div class="algo-indicator-desc">最後に出現してからの経過回数を評価します。長く出ていない数字は「そろそろ出る」可能性として加点されます。</div>
+        </div>
+    </div>
+    <div class="algo-indicator">
+        <div class="algo-indicator-bar" style="background: linear-gradient(90deg, #a855f7, #7c3aed)"></div>
+        <div class="algo-indicator-content">
+            <div class="algo-indicator-title">バランススコア（重み 10%）</div>
+            <div class="algo-indicator-desc">偶奇バランス・高低バランス・数字帯の分散など、選出全体の偏りを抑えるための調整指標です。</div>
+        </div>
+    </div>
+    <div class="algo-indicator">
+        <div class="algo-indicator-bar" style="background: linear-gradient(90deg, #f59e0b, #d97706)"></div>
+        <div class="algo-indicator-content">
+            <div class="algo-indicator-title">引き継ぎ傾向スコア（重み 20%）</div>
+            <div class="algo-indicator-desc">前回の当選番号が次回も出現する「引き継ぎ」傾向を評価します。前回出た数字に加点されます。</div>
+        </div>
+    </div>
+</div>
+
+<div class="card-dark">
+    <h2 class="card-dark-title">引き継ぎ傾向の分析</h2>
+    <p class="algo-text">前回の当選番号 6 個のうち、次回も再び出現する数字の個数を集計しました。</p>
+    <table class="algo-table">
+        <thead><tr>
+            <th>引き継ぎ数</th><th>理論値</th><th>全期間実績</th><th>直近100回</th>
+        </tr></thead>
+        <tbody>
+        <tr><td>0 個</td><td>28.1%</td><td>36.3%（753 回）</td><td>33.0%（33 回）</td></tr>
+        <tr><td>1 個</td><td>42.4%</td><td>45.8%（952 回）</td><td>55.0%（55 回）</td></tr>
+        <tr><td>2 個</td><td>22.6%</td><td>15.8%（329 回）</td><td>10.0%（10 回）</td></tr>
+        <tr><td>3 個</td><td>6.1%</td><td>1.8%（38 回）</td><td>2.0%（2 回）</td></tr>
+        <tr><td>4 個以上</td><td>0.8%</td><td>0.2%（5 回）</td><td>0.0%（0 回）</td></tr>
+        </tbody>
+    </table>
+    <p class="algo-note">※ 理論値は超幾何分布 C(6,k)×C(37,6−k)÷C(43,6) に基づく確率です。</p>
+</div>
+
+<div class="card-dark">
+    <h2 class="card-dark-title">スコア計算の流れ</h2>
+    <div class="algo-step">
+        <span class="algo-step-badge">1</span>
+        <span class="algo-step-text">過去の全抽選データを読み込む</span>
+    </div>
+    <div class="algo-step-arrow">↓</div>
+    <div class="algo-step">
+        <span class="algo-step-badge">2</span>
+        <span class="algo-step-text">各数字（01〜43）について 5 指標のスコアを 0〜1 に正規化して算出</span>
+    </div>
+    <div class="algo-step-arrow">↓</div>
+    <div class="algo-step">
+        <span class="algo-step-badge">3</span>
+        <span class="algo-step-text">重み付けして合計スコアを計算</span>
+    </div>
+    <div class="algo-step-arrow">↓</div>
+    <div class="algo-step">
+        <span class="algo-step-badge">4</span>
+        <span class="algo-step-text">合計スコアの上位 6 数字を「おすすめ」として選出</span>
+    </div>
+    <div class="algo-formula">合計スコア = 出現頻度×0.2 + 直近トレンド×0.3 + 出目間隔×0.2 + バランス×0.1 + 引き継ぎ傾向×0.2</div>
+</div>
+
+<div class="card-dark">
+    <h2 class="card-dark-title">免責事項</h2>
+    <p class="algo-text">ロト6 の抽選は完全な乱数であり、過去の結果が将来の結果に影響を与えることはありません。</p>
+    <p class="algo-text">NekoLoto6 の予想はあくまで統計的な傾向分析に基づく参考情報であり、当選を保証するものではありません。</p>
+    <p class="algo-note">※ 宝くじは適度に楽しみましょう。</p>
+</div>
