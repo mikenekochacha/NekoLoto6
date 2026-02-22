@@ -3,9 +3,10 @@
 @using NekoLoto6.Client.Services
 @inject LotoCsvParser CsvParser
 
-<PageTitle>NekoLoto6 - 出現回数分析</PageTitle>
+<PageTitle>NekoLoto6 - 次回予想</PageTitle>
 
-<h1 class="page-title">🎱 ロト6 出現回数分析</h1>
+<img src="images/neko-mascot.png" class="neko-avatar-large" alt="NekoLoto6" />
+<h1 class="page-title">🎯 NekoLoto6 次回予想</h1>
 
 @if (_loading)
 {
@@ -17,52 +18,123 @@ else if (_error is not null)
 }
 else
 {
-    <p class="page-subtitle">全 <strong>@_totalDraws</strong> 回の抽選データを分析</p>
+    <p class="page-subtitle">全 <strong>@_prediction!.TotalDraws</strong> 回の抽選データに基づく統計分析予想</p>
 
-    <div class="card-dark">
-        <h2 class="card-dark-title">番号別 出現回数（本数字）</h2>
-
-        <div class="frequency-chart">
-            @for (var num = 1; num <= 43; num++)
+    @* メインカード: おすすめ6数字 *@
+    <div class="card-dark predict-main-card">
+        <h2 class="card-dark-title">おすすめ6数字</h2>
+        <div class="predict-balls">
+            @foreach (var num in _prediction.RecommendedNumbers)
             {
-                var count = _frequency[num];
-                var pct = _maxCount > 0 ? (double)count / _maxCount * 100 : 0;
-                <div class="freq-row">
-                    <span class="num-badge">@num.ToString("D2")</span>
-                    <div class="freq-bar-bg">
-                        <div class="freq-bar" style="width: @pct.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%"></div>
-                    </div>
-                    <span class="freq-count">@count 回</span>
-                </div>
+                <span class="predict-ball">@num.ToString("D2")</span>
             }
         </div>
+        <p class="predict-note">※ 統計的傾向に基づく参考値です。当選を保証するものではありません。</p>
+    </div>
+
+    @* 選定理由カード *@
+    <div class="card-dark">
+        <h2 class="card-dark-title">選定理由</h2>
+        @foreach (var num in _prediction.RecommendedNumbers)
+        {
+            var score = _prediction.AllScores.First(s => s.Number == num);
+            <div class="predict-reason-row">
+                <span class="num-badge">@num.ToString("D2")</span>
+                <span class="predict-reason-text">@LotoPredictionService.GetReasonText(score)</span>
+            </div>
+        }
+    </div>
+
+    @* 根拠カード: スコア詳細 *@
+    <div class="card-dark">
+        <h2 class="card-dark-title">選出根拠 スコア詳細</h2>
+        @foreach (var num in _prediction.RecommendedNumbers)
+        {
+            var score = _prediction.AllScores.First(s => s.Number == num);
+            <div class="predict-detail">
+                <div class="predict-detail-header">
+                    <span class="num-badge">@num.ToString("D2")</span>
+                    <span class="predict-detail-total">合計スコア: <strong>@score.TotalScore.ToString("F3")</strong></span>
+                </div>
+                <div class="predict-score-bars">
+                    <div class="predict-score-row">
+                        <span class="predict-score-label">出現頻度 (20%)</span>
+                        <div class="predict-score-bar-bg">
+                            <div class="predict-score-bar" style="width: @((score.FrequencyScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <span class="predict-score-value">@score.FrequencyScore.ToString("F2")</span>
+                    </div>
+                    <div class="predict-score-row">
+                        <span class="predict-score-label">直近トレンド (30%)</span>
+                        <div class="predict-score-bar-bg">
+                            <div class="predict-score-bar predict-score-bar-trend" style="width: @((score.TrendScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <span class="predict-score-value">@score.TrendScore.ToString("F2")</span>
+                    </div>
+                    <div class="predict-score-row">
+                        <span class="predict-score-label">出目間隔 (20%)</span>
+                        <div class="predict-score-bar-bg">
+                            <div class="predict-score-bar predict-score-bar-interval" style="width: @((score.IntervalScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <span class="predict-score-value">@score.IntervalScore.ToString("F2")</span>
+                    </div>
+                    <div class="predict-score-row">
+                        <span class="predict-score-label">バランス (10%)</span>
+                        <div class="predict-score-bar-bg">
+                            <div class="predict-score-bar predict-score-bar-balance" style="width: @((score.BalanceScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <span class="predict-score-value">@score.BalanceScore.ToString("F2")</span>
+                    </div>
+                    <div class="predict-score-row">
+                        <span class="predict-score-label">引き継ぎ傾向 (20%)</span>
+                        <div class="predict-score-bar-bg">
+                            <div class="predict-score-bar predict-score-bar-carryover" style="width: @((score.CarryoverScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <span class="predict-score-value">@score.CarryoverScore.ToString("F2")</span>
+                    </div>
+                </div>
+                <p class="predict-detail-info">
+                    全期間 @score.TotalAppearances 回出現 / 直近@(_prediction.RecentDraws)回で @score.RecentAppearances 回出現 / 最後の出現から @score.DrawsSinceLastAppearance 回前@(score.IsCarriedOver ? " / 前回から引き継ぎ" : "")
+                </p>
+            </div>
+        }
+    </div>
+
+    @* スコアランキングカード（折りたたみ） *@
+    <div class="card-dark">
+        <details>
+            <summary class="card-dark-title predict-ranking-summary">全43数字 スコアランキング</summary>
+            <div class="predict-ranking">
+                @{ var rank = 1; }
+                @foreach (var score in _prediction.AllScores)
+                {
+                    var isSelected = _prediction.RecommendedNumbers.Contains(score.Number);
+                    <div class="predict-ranking-row @(isSelected ? "predict-ranking-highlight" : "")">
+                        <span class="predict-ranking-rank">@rank</span>
+                        <span class="num-badge @(isSelected ? "" : "num-badge-dim")">@score.Number.ToString("D2")</span>
+                        <div class="predict-score-bar-bg predict-ranking-bar">
+                            <div class="predict-score-bar" style="width: @((score.TotalScore / _prediction.AllScores[0].TotalScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                        </div>
+                        <span class="predict-ranking-score">@score.TotalScore.ToString("F3")</span>
+                    </div>
+                    rank++;
+                }
+            </div>
+        </details>
     </div>
 }
 
 @code {
     private bool _loading = true;
     private string? _error;
-    private int _totalDraws;
-    private int[] _frequency = new int[44]; // index 1〜43 を使用
-    private int _maxCount;
+    private PredictionResult? _prediction;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             var results = await CsvParser.LoadResultsAsync();
-            _totalDraws = results.Count;
-
-            foreach (var result in results)
-            {
-                foreach (var num in result.MainNumbers)
-                {
-                    if (num >= 1 && num <= 43)
-                        _frequency[num]++;
-                }
-            }
-
-            _maxCount = _frequency.Skip(1).Max();
+            _prediction = LotoPredictionService.GeneratePrediction(results);
         }
         catch (Exception ex)
         {

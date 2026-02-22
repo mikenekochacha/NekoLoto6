@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F59E0B"/>
+      <stop offset="100%" style="stop-color:#D97706"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.3)"/>
+      <stop offset="100%" style="stop-color:rgba(255,255,255,0)"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Main circle background -->
+  <circle cx="32" cy="32" r="30" fill="url(#bg)"/>
+  <circle cx="32" cy="32" r="30" fill="url(#shine)"/>
+  
+  <!-- Cat ears -->
+  <polygon points="12,22 18,4 26,18" fill="#1F2937" stroke="url(#bg)" stroke-width="1"/>
+  <polygon points="52,22 46,4 38,18" fill="#1F2937" stroke="url(#bg)" stroke-width="1"/>
+  
+  <!-- Inner ear -->
+  <polygon points="15,20 19,8 24,18" fill="#F59E0B" opacity="0.4"/>
+  <polygon points="49,20 45,8 40,18" fill="#F59E0B" opacity="0.4"/>
+  
+  <!-- Cat face -->
+  <circle cx="32" cy="34" r="20" fill="#1F2937"/>
+  
+  <!-- Eyes -->
+  <ellipse cx="25" cy="30" rx="3.5" ry="4" fill="#F59E0B"/>
+  <ellipse cx="39" cy="30" rx="3.5" ry="4" fill="#F59E0B"/>
+  <ellipse cx="25" cy="30" rx="1.5" ry="3.5" fill="#111827"/>
+  <ellipse cx="39" cy="30" rx="1.5" ry="3.5" fill="#111827"/>
+  <circle cx="26.5" cy="28.5" r="1" fill="white" opacity="0.8"/>
+  <circle cx="40.5" cy="28.5" r="1" fill="white" opacity="0.8"/>
+  
+  <!-- Nose -->
+  <polygon points="32,35 30,37.5 34,37.5" fill="#F59E0B" opacity="0.8"/>
+  
+  <!-- Mouth -->
+  <path d="M28,39 Q32,43 36,39" fill="none" stroke="#F59E0B" stroke-width="1.2" opacity="0.6"/>
+  
+  <!-- "6" -->
+  <text x="32" y="52" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="12" font-weight="900" fill="white" opacity="0.95">6</text>
+</svg>

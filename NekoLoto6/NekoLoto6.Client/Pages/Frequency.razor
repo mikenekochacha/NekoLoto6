@@ -1,0 +1,76 @@
+@page "/frequency"
+@using NekoLoto6.Client.Models
+@using NekoLoto6.Client.Services
+@inject LotoCsvParser CsvParser
+
+<PageTitle>NekoLoto6 - 出現回数分析</PageTitle>
+
+<h1 class="page-title">🎱 ロト6 出現回数分析</h1>
+
+@if (_loading)
+{
+    <p class="loading-text">読み込み中...</p>
+}
+else if (_error is not null)
+{
+    <p class="error-text">エラー: @_error</p>
+}
+else
+{
+    <p class="page-subtitle">全 <strong>@_totalDraws</strong> 回の抽選データを分析</p>
+
+    <div class="card-dark">
+        <h2 class="card-dark-title">番号別 出現回数（本数字）</h2>
+
+        <div class="frequency-chart">
+            @for (var num = 1; num <= 43; num++)
+            {
+                var count = _frequency[num];
+                var pct = _maxCount > 0 ? (double)count / _maxCount * 100 : 0;
+                <div class="freq-row">
+                    <span class="num-badge">@num.ToString("D2")</span>
+                    <div class="freq-bar-bg">
+                        <div class="freq-bar" style="width: @pct.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                    </div>
+                    <span class="freq-count">@count 回</span>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private string? _error;
+    private int _totalDraws;
+    private int[] _frequency = new int[44]; // index 1〜43 を使用
+    private int _maxCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var results = await CsvParser.LoadResultsAsync();
+            _totalDraws = results.Count;
+
+            foreach (var result in results)
+            {
+                foreach (var num in result.MainNumbers)
+                {
+                    if (num >= 1 && num <= 43)
+                        _frequency[num]++;
+                }
+            }
+
+            _maxCount = _frequency.Skip(1).Max();
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

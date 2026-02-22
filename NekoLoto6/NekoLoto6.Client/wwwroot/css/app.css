@@ -250,3 +250,225 @@ h1:focus {
     color: #667788;
     margin-bottom: 8px;
 }
+
+/* === Neko Mascot Avatar === */
+.neko-avatar-small {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.neko-avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #f5a623;
+    box-shadow: 0 0 20px rgba(245, 166, 35, 0.3);
+    display: block;
+    margin: 0 auto 1rem auto;
+}
+
+/* === Prediction Reason === */
+.predict-reason-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.predict-reason-row:last-child {
+    border-bottom: none;
+}
+
+.predict-reason-text {
+    font-size: 14px;
+    color: #c0c8d0;
+}
+
+/* === Prediction Page === */
+.predict-main-card {
+    text-align: center;
+}
+
+.predict-balls {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+}
+
+.predict-ball {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f5a623, #e09520);
+    color: #0f1923;
+    font-weight: 800;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(245, 166, 35, 0.3);
+}
+
+.predict-note {
+    color: #667788;
+    font-size: 13px;
+    margin-top: 1rem;
+}
+
+.predict-detail {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.predict-detail:last-child {
+    border-bottom: none;
+}
+
+.predict-detail-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.predict-detail-total {
+    color: #8899aa;
+    font-size: 14px;
+}
+
+.predict-detail-total strong {
+    color: #f5a623;
+}
+
+.predict-score-bars {
+    max-width: 500px;
+    margin-left: 40px;
+}
+
+.predict-score-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    height: 24px;
+}
+
+.predict-score-label {
+    width: 130px;
+    font-size: 12px;
+    color: #8899aa;
+    white-space: nowrap;
+}
+
+.predict-score-bar-bg {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    height: 14px;
+    overflow: hidden;
+}
+
+.predict-score-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4a9eff, #2d7cd6);
+    border-radius: 3px;
+    min-width: 2px;
+    transition: width 0.3s ease;
+}
+
+.predict-score-bar-trend {
+    background: linear-gradient(90deg, #ff6b35, #e05520);
+}
+
+.predict-score-bar-interval {
+    background: linear-gradient(90deg, #26b050, #1e8a3e);
+}
+
+.predict-score-bar-balance {
+    background: linear-gradient(90deg, #a855f7, #7c3aed);
+}
+
+.predict-score-bar-carryover {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.predict-score-value {
+    width: 40px;
+    text-align: right;
+    font-size: 12px;
+    color: #8899aa;
+    margin-left: 8px;
+}
+
+.predict-detail-info {
+    font-size: 12px;
+    color: #667788;
+    margin: 6px 0 0 40px;
+}
+
+/* === Prediction Ranking === */
+.predict-ranking-summary {
+    cursor: pointer;
+    user-select: none;
+}
+
+.predict-ranking-summary:hover {
+    color: #f5a623;
+}
+
+.predict-ranking {
+    margin-top: 1rem;
+    max-width: 600px;
+}
+
+.predict-ranking-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+    height: 32px;
+    padding: 0 4px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.predict-ranking-row:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.predict-ranking-highlight {
+    background-color: rgba(245, 166, 35, 0.08);
+}
+
+.predict-ranking-highlight:hover {
+    background-color: rgba(245, 166, 35, 0.12);
+}
+
+.predict-ranking-rank {
+    width: 28px;
+    font-size: 13px;
+    color: #667788;
+    text-align: right;
+    margin-right: 8px;
+}
+
+.predict-ranking-bar {
+    flex: 1;
+    margin: 0 8px;
+}
+
+.predict-ranking-score {
+    width: 50px;
+    text-align: right;
+    font-size: 13px;
+    color: #8899aa;
+}
+
+.num-badge-dim {
+    background: linear-gradient(135deg, #445566, #334455);
+    color: #8899aa;
+}
