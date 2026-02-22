@@ -1,0 +1,147 @@
+@page "/statistics"
+@using NekoLoto6.Client.Models
+@using NekoLoto6.Client.Services
+@inject LotoCsvParser CsvParser
+
+<PageTitle>ロト6 統計分析</PageTitle>
+
+<h1>ロト6 統計分析</h1>
+
+@if (_loading)
+{
+    <p>読み込み中...</p>
+}
+else if (_error is not null)
+{
+    <p style="color: red;">エラー: @_error</p>
+}
+else
+{
+    <p>全 <strong>@_totalDraws</strong> 回の抽選データを分析</p>
+
+    @* セクション1: 偶数・奇数バランス *@
+    <section class="stat-section">
+        <h2>偶数・奇数バランス</h2>
+        <div class="stat-chart">
+            @for (var i = 0; i < _evenOdd!.Patterns.Count; i++)
+            {
+                var p = _evenOdd.Patterns[i];
+                var isMax = i == _evenOdd.MaxIndex;
+                var maxCount = _evenOdd.Patterns.Max(x => x.Count);
+                var barPct = maxCount > 0 ? (double)p.Count / maxCount * 100 : 0;
+                <div class="stat-row">
+                    <span class="stat-label">@p.Label</span>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar @(isMax ? "stat-bar-highlight" : "")"
+                             style="width: @barPct.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                    </div>
+                    <span class="stat-count">@p.Count 回 (@p.Percentage.ToString("F1")%)</span>
+                </div>
+            }
+        </div>
+    </section>
+
+    @* セクション2: 高低バランス *@
+    <section class="stat-section">
+        <h2>高低バランス（低1-21 / 高22-43）</h2>
+        <div class="stat-chart">
+            @for (var i = 0; i < _highLow!.Patterns.Count; i++)
+            {
+                var p = _highLow.Patterns[i];
+                var isMax = i == _highLow.MaxIndex;
+                var maxCount = _highLow.Patterns.Max(x => x.Count);
+                var barPct = maxCount > 0 ? (double)p.Count / maxCount * 100 : 0;
+                <div class="stat-row">
+                    <span class="stat-label">@p.Label</span>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar @(isMax ? "stat-bar-highlight" : "")"
+                             style="width: @barPct.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                    </div>
+                    <span class="stat-count">@p.Count 回 (@p.Percentage.ToString("F1")%)</span>
+                </div>
+            }
+        </div>
+    </section>
+
+    @* セクション3: 合計値の分布 *@
+    <section class="stat-section">
+        <h2>本数字 合計値の分布</h2>
+        <div class="stat-summary">
+            <span>平均: <strong>@_sumRange!.Average.ToString("F1")</strong></span>
+            <span>中央値: <strong>@_sumRange.Median.ToString("F1")</strong></span>
+            <span>最小: <strong>@_sumRange.Min</strong></span>
+            <span>最大: <strong>@_sumRange.Max</strong></span>
+        </div>
+        <div class="stat-chart">
+            @{
+                var sumMaxCount = _sumRange.Ranges.Max(x => x.Count);
+            }
+            @foreach (var p in _sumRange.Ranges)
+            {
+                var barPct = sumMaxCount > 0 ? (double)p.Count / sumMaxCount * 100 : 0;
+                <div class="stat-row">
+                    <span class="stat-label stat-label-wide">@p.Label</span>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar" style="width: @barPct.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                    </div>
+                    <span class="stat-count">@p.Count 回 (@p.Percentage.ToString("F1")%)</span>
+                </div>
+            }
+        </div>
+    </section>
+
+    @* セクション4: 連番分析 *@
+    <section class="stat-section">
+        <h2>連番（連続数字）の出現分析</h2>
+        <p class="stat-note">連番とは、隣り合う数字（例: 5,6 や 12,13,14）のことです</p>
+        <div class="stat-chart">
+            @for (var i = 0; i < _consecutive!.Patterns.Count; i++)
+            {
+                var p = _consecutive.Patterns[i];
+                var isMax = i == _consecutive.MaxIndex;
+                var maxCount = _consecutive.Patterns.Max(x => x.Count);
+                var barPct = maxCount > 0 ? (double)p.Count / maxCount * 100 : 0;
+                <div class="stat-row">
+                    <span class="stat-label">@p.Label</span>
+                    <div class="stat-bar-bg">
+                        <div class="stat-bar @(isMax ? "stat-bar-highlight" : "")"
+                             style="width: @barPct.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+                    </div>
+                    <span class="stat-count">@p.Count 回 (@p.Percentage.ToString("F1")%)</span>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+@code {
+    private bool _loading = true;
+    private string? _error;
+    private int _totalDraws;
+    private EvenOddResult? _evenOdd;
+    private HighLowResult? _highLow;
+    private SumRangeResult? _sumRange;
+    private ConsecutiveResult? _consecutive;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var results = await CsvParser.LoadResultsAsync();
+            _totalDraws = results.Count;
+
+            _evenOdd = LotoStatisticsService.AnalyzeEvenOdd(results);
+            _highLow = LotoStatisticsService.AnalyzeHighLow(results);
+            _sumRange = LotoStatisticsService.AnalyzeSumDistribution(results);
+            _consecutive = LotoStatisticsService.AnalyzeConsecutive(results);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}
