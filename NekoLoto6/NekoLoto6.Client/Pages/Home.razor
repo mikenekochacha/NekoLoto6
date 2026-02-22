@@ -1,4 +1,5 @@
 @page "/"
+@using System.Text.Json
 @using NekoLoto6.Client.Models
 @inject HttpClient Http
 
@@ -58,7 +59,7 @@ else
         @foreach (var num in _data.Recommendation.Numbers)
         {
             var rscore = _data.Recommendation.Scores[num.ToString()];
-            var detail = _data.AllScores.First(s => s.Number == num);
+            var detail = _data.AllScores.FirstOrDefault(s => s.Number == num);
             <div class="predict-detail">
                 <div class="predict-detail-header">
                     <span class="num-badge">@num.ToString("D2")</span>
@@ -101,9 +102,12 @@ else
                         <span class="predict-score-value">@rscore.Carryover.ToString("F2")</span>
                     </div>
                 </div>
-                <p class="predict-detail-info">
-                    全期間 @detail.TotalAppearances 回出現 / 直近@(_data.RecentDraws)回で @detail.RecentAppearances 回出現 / 最後の出現から @detail.DrawsSinceLastAppearance 回前@(detail.IsCarriedOver ? " / 前回から引き継ぎ" : "")
-                </p>
+                @if (detail is not null)
+                {
+                    <p class="predict-detail-info">
+                        全期間 @detail.TotalAppearances 回出現 / 直近@(_data.RecentDraws)回で @detail.RecentAppearances 回出現 / 最後の出現から @detail.DrawsSinceLastAppearance 回前@(detail.IsCarriedOver ? " / 前回から引き継ぎ" : "")
+                    </p>
+                }
             </div>
         }
     </div>
@@ -121,7 +125,7 @@ else
                         <span class="predict-ranking-rank">@rank</span>
                         <span class="num-badge @(isSelected ? "" : "num-badge-dim")">@score.Number.ToString("D2")</span>
                         <div class="predict-score-bar-bg predict-ranking-bar">
-                            <div class="predict-score-bar" style="width: @((score.TotalScore / _data.AllScores[0].TotalScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                            <div class="predict-score-bar" style="width: @((_data.AllScores[0].TotalScore > 0 ? score.TotalScore / _data.AllScores[0].TotalScore * 100 : 0).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
                         </div>
                         <span class="predict-ranking-score">@score.TotalScore.ToString("F3")</span>
                     </div>
@@ -133,6 +137,11 @@ else
 }
 
 @code {
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private bool _loading = true;
     private string? _error;
     private PredictionData? _data;
@@ -142,7 +151,7 @@ else
     {
         try
         {
-            _data = await Http.GetFromJsonAsync<PredictionData>("data/prediction.json");
+            _data = await Http.GetFromJsonAsync<PredictionData>("data/prediction.json", _jsonOptions);
             if (_data is null)
                 _error = "予測データの読み込みに失敗しました。";
             else
