@@ -35,8 +35,8 @@ jobs:
           # GitHub Pagesは圧縮ファイルを正しく返せないため削除
           find publish/wwwroot -name "*.br" -delete
           find publish/wwwroot -name "*.gz" -delete
-          # _framework/dotnet.js 内の integrity ハッシュを除去
-          sed -i 's/"integrity"\s*:\s*"[^"]*"//g' publish/wwwroot/_framework/dotnet.js
+          # _framework/dotnet.js 内の integrity ハッシュ行を丸ごと削除
+          sed -i '/"integrity": "sha256-/d' publish/wwwroot/_framework/dotnet.js
 
       - name: Prepare GitHub Pages files
         run: |
