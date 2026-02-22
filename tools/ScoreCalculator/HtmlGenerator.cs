@@ -6,6 +6,7 @@ using NekoLoto6.Client.Services;
 public static class HtmlGenerator
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
+    private const string SiteBase = "https://mikenekochacha.github.io/NekoLoto6/";
 
     public static void GenerateAll(
         string wwwrootDir,
@@ -14,6 +15,8 @@ public static class HtmlGenerator
         LotoResult latest,
         string lastUpdated)
     {
+        var totalDrawings = results.Count;
+
         File.WriteAllText(
             Path.Combine(wwwrootDir, "index.html"),
             GenerateIndexPage(results, prediction, latest, lastUpdated),
@@ -37,6 +40,17 @@ public static class HtmlGenerator
         File.WriteAllText(
             Path.Combine(wwwrootDir, "404.html"),
             Generate404Page(),
+            Encoding.UTF8);
+
+        var lastmod = DateTime.Now.ToString("yyyy-MM-dd");
+        File.WriteAllText(
+            Path.Combine(wwwrootDir, "sitemap.xml"),
+            GenerateSitemap(lastmod),
+            Encoding.UTF8);
+
+        File.WriteAllText(
+            Path.Combine(wwwrootDir, "robots.txt"),
+            GenerateRobotsTxt(),
             Encoding.UTF8);
 
         File.WriteAllText(
@@ -148,7 +162,16 @@ public static class HtmlGenerator
         sb.AppendLine("    </details>");
         sb.AppendLine("</div>");
 
-        return WrapPage("NekoLoto6 - 次回予想", "index", sb.ToString());
+        return WrapPage(new PageSeo(
+            Title: $"ロト6予想 次回おすすめ数字 | NekoLoto6 統計分析",
+            Description: $"ロト6の過去全{results.Count}回の抽選データを統計分析し、5つの独自指標で次回のおすすめ数字を予想。出現頻度・直近トレンド・引き継ぎ傾向などから注目の6数字を毎回自動更新でお届けします。",
+            Keywords: "ロト6,予想,次回,おすすめ数字,統計分析,出現頻度,トレンド,当選番号,loto6",
+            FileName: "",
+            ActivePage: "index",
+            JsonLdType: "WebSite",
+            JsonLdName: "NekoLoto6",
+            JsonLdDescription: "ロト6の統計分析に基づく次回予想サイト"
+        ), sb.ToString());
     }
 
     private static void AppendScoreBar(StringBuilder sb, string label, string extraClass, double value)
@@ -194,7 +217,16 @@ public static class HtmlGenerator
         sb.AppendLine("    </div>");
         sb.AppendLine("</div>");
 
-        return WrapPage("NekoLoto6 - 出現回数分析", "frequency", sb.ToString());
+        return WrapPage(new PageSeo(
+            Title: "ロト6 数字別出現回数・出現頻度 | NekoLoto6",
+            Description: "ロト6の1〜43全数字の出現回数・出現頻度をグラフで可視化。過去全抽選データに基づく統計で、よく出る数字・出にくい数字が一目でわかります。",
+            Keywords: "ロト6,出現回数,出現頻度,統計,よく出る数字,データ分析,loto6",
+            FileName: "frequency.html",
+            ActivePage: "frequency",
+            JsonLdType: "WebPage",
+            JsonLdName: "ロト6 数字別出現回数・出現頻度",
+            JsonLdDescription: "ロト6の1〜43全数字の出現回数・出現頻度をグラフで可視化"
+        ), sb.ToString());
     }
 
     private static string GenerateStatisticsPage(List<LotoResult> results)
@@ -258,7 +290,16 @@ public static class HtmlGenerator
         sb.AppendLine("    </div>");
         sb.AppendLine("</div>");
 
-        return WrapPage("NekoLoto6 - 統計分析", "statistics", sb.ToString());
+        return WrapPage(new PageSeo(
+            Title: "ロト6 統計分析・データ傾向 | NekoLoto6",
+            Description: "ロト6の統計分析ページ。直近の出現トレンド、出目間隔、数字帯別の偏りなど、多角的なデータ分析で傾向を把握できます。",
+            Keywords: "ロト6,統計,分析,トレンド,データ,傾向,出目間隔,loto6",
+            FileName: "statistics.html",
+            ActivePage: "statistics",
+            JsonLdType: "WebPage",
+            JsonLdName: "ロト6 統計分析・データ傾向",
+            JsonLdDescription: "ロト6の統計分析。直近の出現トレンド、出目間隔、数字帯別の偏りなど多角的なデータ分析"
+        ), sb.ToString());
     }
 
     private static void AppendPatternBars(StringBuilder sb, List<PatternCount> patterns, int maxIndex)
@@ -286,7 +327,16 @@ public static class HtmlGenerator
         sb.AppendLine("<h1 class=\"page-title\">ページが見つかりません</h1>");
         sb.AppendLine("<p class=\"page-subtitle\">お探しのページは存在しないか、移動した可能性があります。</p>");
         sb.AppendLine("<p><a href=\"\">トップページに戻る</a></p>");
-        return WrapPage("NekoLoto6 - ページが見つかりません", "", sb.ToString());
+        return WrapPage(new PageSeo(
+            Title: "NekoLoto6 - ページが見つかりません",
+            Description: "",
+            Keywords: "",
+            FileName: "404.html",
+            ActivePage: "",
+            JsonLdType: "",
+            JsonLdName: "",
+            JsonLdDescription: ""
+        ), sb.ToString());
     }
 
     private static string GenerateAlgorithmPage(List<LotoResult> results)
@@ -427,35 +477,165 @@ public static class HtmlGenerator
         sb.AppendLine("    <p class=\"algo-note\">※ 宝くじは適度に楽しみましょう。</p>");
         sb.AppendLine("</div>");
 
-        return WrapPage("NekoLoto6 - 予想の仕組み", "algorithm", sb.ToString());
+        return WrapPage(new PageSeo(
+            Title: "ロト6予想の仕組み・アルゴリズム解説 | NekoLoto6",
+            Description: "NekoLoto6のロト6予想アルゴリズムを解説。出現頻度・直近トレンド・出目間隔・バランス・引き継ぎ傾向の5指標によるスコアリング方式と、超幾何分布に基づく独自分析の詳細。",
+            Keywords: "ロト6,予想,アルゴリズム,仕組み,スコアリング,超幾何分布,引き継ぎ,統計分析,loto6",
+            FileName: "algorithm.html",
+            ActivePage: "algorithm",
+            JsonLdType: "WebPage",
+            JsonLdName: "ロト6予想の仕組み・アルゴリズム解説",
+            JsonLdDescription: "NekoLoto6の予想アルゴリズム解説。5指標によるスコアリング方式と超幾何分布に基づく独自分析"
+        ), sb.ToString());
     }
+
+    // ========== SEO Data ==========
+
+    private record PageSeo(
+        string Title,
+        string Description,
+        string Keywords,
+        string FileName,
+        string ActivePage,
+        string JsonLdType,
+        string JsonLdName,
+        string JsonLdDescription);
 
     // ========== Layout ==========
 
-    private static string WrapPage(string title, string activePage, string content)
+    private static string WrapPage(PageSeo seo, string content)
     {
-        return $@"<!DOCTYPE html>
-<html lang=""ja"">
-<head>
-    <meta charset=""utf-8"" />
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"" />
-    <title>{title}</title>
-    <base href=""/NekoLoto6/"" />
-    <link rel=""icon"" type=""image/png"" href=""favicon.png"" />
-    <link rel=""stylesheet"" href=""css/app.css"" />
-</head>
-<body>
-    <div class=""page"">
-        <div class=""sidebar"">
-{GenerateSidebar(activePage)}        </div>
-        <main>
-            <article class=""content px-4"">
-{content}
-            </article>
-        </main>
-    </div>
-</body>
-</html>";
+        var canonicalUrl = SiteBase + seo.FileName;
+        var sb = new StringBuilder();
+
+        sb.AppendLine("<!DOCTYPE html>");
+        sb.AppendLine("<html lang=\"ja\">");
+        sb.AppendLine("<head>");
+        sb.AppendLine("    <meta charset=\"utf-8\" />");
+        sb.AppendLine("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />");
+        sb.AppendLine($"    <title>{seo.Title}</title>");
+        sb.AppendLine("    <base href=\"/NekoLoto6/\" />");
+        sb.AppendLine("    <link rel=\"icon\" type=\"image/png\" href=\"favicon.png\" />");
+        sb.AppendLine("    <link rel=\"stylesheet\" href=\"css/app.css\" />");
+        sb.AppendLine("    <meta name=\"robots\" content=\"index, follow\" />");
+        sb.AppendLine("    <meta name=\"author\" content=\"NekoLoto6\" />");
+        sb.AppendLine("    <meta name=\"theme-color\" content=\"#1a1a2e\" />");
+        sb.AppendLine($"    <link rel=\"canonical\" href=\"{canonicalUrl}\" />");
+
+        if (!string.IsNullOrEmpty(seo.Description))
+        {
+            sb.AppendLine($"    <meta name=\"description\" content=\"{EscapeAttr(seo.Description)}\" />");
+            sb.AppendLine($"    <meta name=\"keywords\" content=\"{EscapeAttr(seo.Keywords)}\" />");
+
+            // OGP
+            sb.AppendLine($"    <meta property=\"og:title\" content=\"{EscapeAttr(seo.Title)}\" />");
+            sb.AppendLine($"    <meta property=\"og:description\" content=\"{EscapeAttr(seo.Description)}\" />");
+            sb.AppendLine($"    <meta property=\"og:url\" content=\"{canonicalUrl}\" />");
+            sb.AppendLine("    <meta property=\"og:site_name\" content=\"NekoLoto6\" />");
+            sb.AppendLine("    <meta property=\"og:type\" content=\"website\" />");
+            sb.AppendLine("    <meta property=\"og:locale\" content=\"ja_JP\" />");
+            sb.AppendLine($"    <meta property=\"og:image\" content=\"{SiteBase}images/neko-mascot.png\" />");
+            sb.AppendLine("    <meta property=\"og:image:width\" content=\"512\" />");
+            sb.AppendLine("    <meta property=\"og:image:height\" content=\"512\" />");
+
+            // Twitter Card
+            sb.AppendLine("    <meta name=\"twitter:card\" content=\"summary\" />");
+            sb.AppendLine($"    <meta name=\"twitter:title\" content=\"{EscapeAttr(seo.Title)}\" />");
+            sb.AppendLine($"    <meta name=\"twitter:description\" content=\"{EscapeAttr(seo.Description)}\" />");
+            sb.AppendLine($"    <meta name=\"twitter:image\" content=\"{SiteBase}images/neko-mascot.png\" />");
+        }
+
+        // JSON-LD
+        if (!string.IsNullOrEmpty(seo.JsonLdType))
+        {
+            if (seo.JsonLdType == "WebSite")
+            {
+                sb.AppendLine("    <script type=\"application/ld+json\">");
+                sb.AppendLine("    {");
+                sb.AppendLine("        \"@context\": \"https://schema.org\",");
+                sb.AppendLine("        \"@type\": \"WebSite\",");
+                sb.AppendLine($"        \"name\": \"{EscapeJson(seo.JsonLdName)}\",");
+                sb.AppendLine($"        \"description\": \"{EscapeJson(seo.JsonLdDescription)}\",");
+                sb.AppendLine($"        \"url\": \"{SiteBase}\",");
+                sb.AppendLine("        \"inLanguage\": \"ja\"");
+                sb.AppendLine("    }");
+                sb.AppendLine("    </script>");
+            }
+            else
+            {
+                sb.AppendLine("    <script type=\"application/ld+json\">");
+                sb.AppendLine("    {");
+                sb.AppendLine("        \"@context\": \"https://schema.org\",");
+                sb.AppendLine("        \"@type\": \"WebPage\",");
+                sb.AppendLine($"        \"name\": \"{EscapeJson(seo.JsonLdName)}\",");
+                sb.AppendLine($"        \"description\": \"{EscapeJson(seo.JsonLdDescription)}\",");
+                sb.AppendLine($"        \"url\": \"{canonicalUrl}\",");
+                sb.AppendLine("        \"inLanguage\": \"ja\",");
+                sb.AppendLine("        \"isPartOf\": {");
+                sb.AppendLine("            \"@type\": \"WebSite\",");
+                sb.AppendLine("            \"name\": \"NekoLoto6\",");
+                sb.AppendLine($"            \"url\": \"{SiteBase}\"");
+                sb.AppendLine("        }");
+                sb.AppendLine("    }");
+                sb.AppendLine("    </script>");
+            }
+        }
+
+        sb.AppendLine("</head>");
+        sb.AppendLine("<body>");
+        sb.AppendLine("    <div class=\"page\">");
+        sb.AppendLine("        <div class=\"sidebar\">");
+        sb.Append(GenerateSidebar(seo.ActivePage));
+        sb.AppendLine("        </div>");
+        sb.AppendLine("        <main>");
+        sb.AppendLine("            <article class=\"content px-4\">");
+        sb.Append(content);
+        sb.AppendLine();
+        sb.AppendLine("            </article>");
+        sb.AppendLine("        </main>");
+        sb.AppendLine("    </div>");
+        sb.AppendLine("</body>");
+        sb.AppendLine("</html>");
+
+        return sb.ToString();
+    }
+
+    private static string EscapeAttr(string s) => s.Replace("\"", "&quot;").Replace("&", "&amp;");
+    private static string EscapeJson(string s) => s.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+    // ========== Sitemap & Robots ==========
+
+    private static string GenerateSitemap(string lastmod)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        sb.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
+
+        var pages = new (string url, string priority, string changefreq)[]
+        {
+            (SiteBase, "1.0", "weekly"),
+            ($"{SiteBase}frequency.html", "0.8", "weekly"),
+            ($"{SiteBase}statistics.html", "0.8", "weekly"),
+            ($"{SiteBase}algorithm.html", "0.6", "monthly")
+        };
+
+        foreach (var (url, priority, changefreq) in pages)
+        {
+            sb.AppendLine("    <url>");
+            sb.AppendLine($"        <loc>{url}</loc>");
+            sb.AppendLine($"        <lastmod>{lastmod}</lastmod>");
+            sb.AppendLine($"        <changefreq>{changefreq}</changefreq>");
+            sb.AppendLine($"        <priority>{priority}</priority>");
+            sb.AppendLine("    </url>");
+        }
+
+        sb.AppendLine("</urlset>");
+        return sb.ToString();
+    }
+
+    private static string GenerateRobotsTxt()
+    {
+        return $"User-agent: *\nAllow: /\nSitemap: {SiteBase}sitemap.xml\n";
     }
 
     private static string GenerateSidebar(string activePage)
