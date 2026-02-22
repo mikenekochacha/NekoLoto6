@@ -35,10 +35,35 @@ jobs:
             NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json \
             NekoLoto6/NekoLoto6.Client/wwwroot
 
+      - name: Prepare deploy directory
+        run: |
+          mkdir -p _site/nekoloto6
+          # NekoLoto6コンテンツをサブディレクトリに配置
+          cp -r NekoLoto6/NekoLoto6.Client/wwwroot/* _site/nekoloto6/
+          # ルートに必要なファイルを配置
+          mv _site/nekoloto6/CNAME _site/CNAME
+          mv _site/nekoloto6/.nojekyll _site/.nojekyll
+          mv _site/nekoloto6/robots.txt _site/robots.txt
+          mv _site/nekoloto6/sitemap.xml _site/sitemap.xml
+          # ルートindex.html（リダイレクト）
+          cat > _site/index.html << 'REDIRECT'
+          <!DOCTYPE html>
+          <html lang="ja">
+          <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="refresh" content="0;url=/nekoloto6/" />
+            <title>Redirecting...</title>
+          </head>
+          <body>
+            <p><a href="/nekoloto6/">NekoLoto6 へ移動</a></p>
+          </body>
+          </html>
+          REDIRECT
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: NekoLoto6/NekoLoto6.Client/wwwroot
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
