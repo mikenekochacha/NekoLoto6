@@ -1,7 +1,6 @@
 @page "/"
 @using NekoLoto6.Client.Models
-@using NekoLoto6.Client.Services
-@inject LotoCsvParser CsvParser
+@inject HttpClient Http
 
 <PageTitle>NekoLoto6 - 次回予想</PageTitle>
 
@@ -18,13 +17,20 @@ else if (_error is not null)
 }
 else
 {
-    <p class="page-subtitle">全 <strong>@_prediction!.TotalDraws</strong> 回の抽選データに基づく統計分析予想</p>
+    <p class="page-subtitle">全 <strong>@_data!.TotalDrawings</strong> 回の抽選データに基づく統計分析予想</p>
+
+    @* 最新抽選情報 & 更新日時 *@
+    <div class="predict-meta">
+        <span>最新: 第@(_data.LatestDrawing.Round)回 (@_data.LatestDrawing.Date)
+            【@(string.Join(" ", _data.LatestDrawing.Numbers.Select(n => n.ToString("D2")))) + bonus @_data.LatestDrawing.Bonus.ToString("D2")】</span>
+        <span>更新: @FormatLastUpdated(_data.LastUpdated)</span>
+    </div>
 
     @* メインカード: おすすめ6数字 *@
     <div class="card-dark predict-main-card">
         <h2 class="card-dark-title">おすすめ6数字</h2>
         <div class="predict-balls">
-            @foreach (var num in _prediction.RecommendedNumbers)
+            @foreach (var num in _data.Recommendation.Numbers)
             {
                 <span class="predict-ball">@num.ToString("D2")</span>
             }
@@ -35,12 +41,13 @@ else
     @* 選定理由カード *@
     <div class="card-dark">
         <h2 class="card-dark-title">選定理由</h2>
-        @foreach (var num in _prediction.RecommendedNumbers)
+        @foreach (var num in _data.Recommendation.Numbers)
         {
-            var score = _prediction.AllScores.First(s => s.Number == num);
+            var rscore = _data.Recommendation.Scores[num.ToString()];
             <div class="predict-reason-row">
                 <span class="num-badge">@num.ToString("D2")</span>
-                <span class="predict-reason-text">@LotoPredictionService.GetReasonText(score)</span>
+                <span class="predict-reason-arrow">→</span>
+                <span class="predict-reason-text">@_reasons[num]</span>
             </div>
         }
     </div>
@@ -48,53 +55,54 @@ else
     @* 根拠カード: スコア詳細 *@
     <div class="card-dark">
         <h2 class="card-dark-title">選出根拠 スコア詳細</h2>
-        @foreach (var num in _prediction.RecommendedNumbers)
+        @foreach (var num in _data.Recommendation.Numbers)
         {
-            var score = _prediction.AllScores.First(s => s.Number == num);
+            var rscore = _data.Recommendation.Scores[num.ToString()];
+            var detail = _data.AllScores.First(s => s.Number == num);
             <div class="predict-detail">
                 <div class="predict-detail-header">
                     <span class="num-badge">@num.ToString("D2")</span>
-                    <span class="predict-detail-total">合計スコア: <strong>@score.TotalScore.ToString("F3")</strong></span>
+                    <span class="predict-detail-total">合計スコア: <strong>@rscore.Total.ToString("F3")</strong></span>
                 </div>
                 <div class="predict-score-bars">
                     <div class="predict-score-row">
                         <span class="predict-score-label">出現頻度 (20%)</span>
                         <div class="predict-score-bar-bg">
-                            <div class="predict-score-bar" style="width: @((score.FrequencyScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                            <div class="predict-score-bar" style="width: @((rscore.Frequency * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
                         </div>
-                        <span class="predict-score-value">@score.FrequencyScore.ToString("F2")</span>
+                        <span class="predict-score-value">@rscore.Frequency.ToString("F2")</span>
                     </div>
                     <div class="predict-score-row">
                         <span class="predict-score-label">直近トレンド (30%)</span>
                         <div class="predict-score-bar-bg">
-                            <div class="predict-score-bar predict-score-bar-trend" style="width: @((score.TrendScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                            <div class="predict-score-bar predict-score-bar-trend" style="width: @((rscore.Trend * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
                         </div>
-                        <span class="predict-score-value">@score.TrendScore.ToString("F2")</span>
+                        <span class="predict-score-value">@rscore.Trend.ToString("F2")</span>
                     </div>
                     <div class="predict-score-row">
                         <span class="predict-score-label">出目間隔 (20%)</span>
                         <div class="predict-score-bar-bg">
-                            <div class="predict-score-bar predict-score-bar-interval" style="width: @((score.IntervalScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                            <div class="predict-score-bar predict-score-bar-interval" style="width: @((rscore.Interval * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
                         </div>
-                        <span class="predict-score-value">@score.IntervalScore.ToString("F2")</span>
+                        <span class="predict-score-value">@rscore.Interval.ToString("F2")</span>
                     </div>
                     <div class="predict-score-row">
                         <span class="predict-score-label">バランス (10%)</span>
                         <div class="predict-score-bar-bg">
-                            <div class="predict-score-bar predict-score-bar-balance" style="width: @((score.BalanceScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                            <div class="predict-score-bar predict-score-bar-balance" style="width: @((rscore.Balance * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
                         </div>
-                        <span class="predict-score-value">@score.BalanceScore.ToString("F2")</span>
+                        <span class="predict-score-value">@rscore.Balance.ToString("F2")</span>
                     </div>
                     <div class="predict-score-row">
                         <span class="predict-score-label">引き継ぎ傾向 (20%)</span>
                         <div class="predict-score-bar-bg">
-                            <div class="predict-score-bar predict-score-bar-carryover" style="width: @((score.CarryoverScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                            <div class="predict-score-bar predict-score-bar-carryover" style="width: @((rscore.Carryover * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
                         </div>
-                        <span class="predict-score-value">@score.CarryoverScore.ToString("F2")</span>
+                        <span class="predict-score-value">@rscore.Carryover.ToString("F2")</span>
                     </div>
                 </div>
                 <p class="predict-detail-info">
-                    全期間 @score.TotalAppearances 回出現 / 直近@(_prediction.RecentDraws)回で @score.RecentAppearances 回出現 / 最後の出現から @score.DrawsSinceLastAppearance 回前@(score.IsCarriedOver ? " / 前回から引き継ぎ" : "")
+                    全期間 @detail.TotalAppearances 回出現 / 直近@(_data.RecentDraws)回で @detail.RecentAppearances 回出現 / 最後の出現から @detail.DrawsSinceLastAppearance 回前@(detail.IsCarriedOver ? " / 前回から引き継ぎ" : "")
                 </p>
             </div>
         }
@@ -106,14 +114,14 @@ else
             <summary class="card-dark-title predict-ranking-summary">全43数字 スコアランキング</summary>
             <div class="predict-ranking">
                 @{ var rank = 1; }
-                @foreach (var score in _prediction.AllScores)
+                @foreach (var score in _data.AllScores)
                 {
-                    var isSelected = _prediction.RecommendedNumbers.Contains(score.Number);
+                    var isSelected = _data.Recommendation.Numbers.Contains(score.Number);
                     <div class="predict-ranking-row @(isSelected ? "predict-ranking-highlight" : "")">
                         <span class="predict-ranking-rank">@rank</span>
                         <span class="num-badge @(isSelected ? "" : "num-badge-dim")">@score.Number.ToString("D2")</span>
                         <div class="predict-score-bar-bg predict-ranking-bar">
-                            <div class="predict-score-bar" style="width: @((score.TotalScore / _prediction.AllScores[0].TotalScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
+                            <div class="predict-score-bar" style="width: @((score.TotalScore / _data.AllScores[0].TotalScore * 100).ToString("F1", System.Globalization.CultureInfo.InvariantCulture))%"></div>
                         </div>
                         <span class="predict-ranking-score">@score.TotalScore.ToString("F3")</span>
                     </div>
@@ -127,22 +135,178 @@ else
 @code {
     private bool _loading = true;
     private string? _error;
-    private PredictionResult? _prediction;
+    private PredictionData? _data;
+    private Dictionary<int, string> _reasons = new();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var results = await CsvParser.LoadResultsAsync();
-            _prediction = LotoPredictionService.GeneratePrediction(results);
+            _data = await Http.GetFromJsonAsync<PredictionData>("data/prediction.json");
+            if (_data is null)
+                _error = "予測データの読み込みに失敗しました。";
+            else
+                _reasons = GenerateUniqueReasons(_data.Recommendation);
+        }
+        catch (HttpRequestException)
+        {
+            _error = "予測データファイルが見つかりません。GitHub Actionsでデータ更新を実行してください。";
         }
         catch (Exception ex)
         {
-            _error = ex.Message;
+            _error = $"予測データの読み込みエラー: {ex.Message}";
         }
         finally
         {
             _loading = false;
         }
     }
+
+    private static string FormatLastUpdated(string isoDate)
+    {
+        if (DateTimeOffset.TryParse(isoDate, out var dto))
+            return dto.ToString("yyyy/MM/dd HH:mm");
+        return isoDate;
+    }
+
+    private static Dictionary<int, string> GenerateUniqueReasons(RecommendationData rec)
+    {
+        var result = new Dictionary<int, string>();
+        var used = new HashSet<string>();
+
+        foreach (var num in rec.Numbers)
+        {
+            var s = rec.Scores[num.ToString()];
+            var candidates = GetReasonCandidates(s);
+            var text = candidates.FirstOrDefault(c => !used.Contains(c)) ?? candidates[0];
+            result[num] = text;
+            used.Add(text);
+        }
+
+        return result;
+    }
+
+    private static List<string> GetReasonCandidates(RecommendedScoreData s)
+    {
+        var candidates = new List<string>();
+        var indicators = new (string key, double value)[]
+        {
+            ("frequency", s.Frequency),
+            ("trend", s.Trend),
+            ("interval", s.Interval),
+            ("balance", s.Balance),
+            ("carryover", s.Carryover)
+        };
+        var sorted = indicators.OrderByDescending(x => x.value).ToArray();
+
+        // Priority 1: Combo (top + second) if second >= 0.7
+        if (sorted[1].value >= 0.7)
+            candidates.AddRange(GetComboTexts(sorted[0].key, sorted[1].key));
+
+        // Priority 2: Single variants for top indicator
+        candidates.AddRange(GetSingleTexts(sorted[0].key));
+
+        // Priority 3: Combo (top + third) if third >= 0.7
+        if (sorted[2].value >= 0.7)
+            candidates.AddRange(GetComboTexts(sorted[0].key, sorted[2].key));
+
+        // Priority 4: Single variants for second indicator
+        candidates.AddRange(GetSingleTexts(sorted[1].key));
+
+        // Priority 5: Single variants for remaining indicators
+        for (var i = 2; i < sorted.Length; i++)
+            candidates.AddRange(GetSingleTexts(sorted[i].key));
+
+        return candidates;
+    }
+
+    private static string[] GetSingleTexts(string indicator) => indicator switch
+    {
+        "frequency" => new[]
+        {
+            "全期間での出現率が高く、安定した数字",
+            "全期間を通じて安定感のある数字",
+            "長期的に見て信頼度の高い数字"
+        },
+        "trend" => new[]
+        {
+            "直近50回で特に勢いがある注目数字",
+            "最近の抽選で好調な数字",
+            "ここ最近の出現率が上昇中"
+        },
+        "interval" => new[]
+        {
+            "しばらく出ていないため、そろそろ出る可能性",
+            "出目間隔が広がっており、反発に期待",
+            "前回から間が空いており、出現タイミングか"
+        },
+        "balance" => new[]
+        {
+            "バランスが非常に良く、総合力が高い数字",
+            "各指標がまんべんなく高い優等生タイプ",
+            "偏りが少なく、安定した総合評価"
+        },
+        "carryover" => new[]
+        {
+            "前回も出現しており、引き継がれやすい傾向の数字",
+            "連続出現の可能性が統計的に高い数字",
+            "前回の流れを引き継ぐ勢いのある数字"
+        },
+        _ => Array.Empty<string>()
+    };
+
+    private static string[] GetComboTexts(string a, string b) => (a, b) switch
+    {
+        ("trend", "frequency") or ("frequency", "trend") => new[]
+        {
+            "直近50回で勢いがあり、全期間でも安定して出現",
+            "最近の好調さに加え、長期的な安定感も兼備"
+        },
+        ("trend", "interval") or ("interval", "trend") => new[]
+        {
+            "直近の勢いがあり、出目間隔的にも好タイミング",
+            "最近の好調と出目間隔の好条件が重なる数字"
+        },
+        ("frequency", "interval") or ("interval", "frequency") => new[]
+        {
+            "安定した出現率で、出目間隔的にも期待大",
+            "高い出現率に加え、間隔的にも好タイミング"
+        },
+        ("frequency", "balance") or ("balance", "frequency") => new[]
+        {
+            "全期間で安定しており、バランスにも優れた数字",
+            "出現率の高さとバランスの良さを兼備"
+        },
+        ("trend", "balance") or ("balance", "trend") => new[]
+        {
+            "直近の勢いとバランスを兼ね備えた数字",
+            "最近好調でバランスも良い期待の数字"
+        },
+        ("interval", "balance") or ("balance", "interval") => new[]
+        {
+            "しばらく出ていないが、バランスが良く反発が期待される",
+            "出目間隔とバランスの両面で期待できる数字"
+        },
+        ("carryover", "trend") or ("trend", "carryover") => new[]
+        {
+            "前回からの引き継ぎで、直近の勢いも継続中",
+            "連続出現の勢いと最近の好調さが重なる数字"
+        },
+        ("carryover", "frequency") or ("frequency", "carryover") => new[]
+        {
+            "前回から引き継がれやすく、全期間でも安定した数字",
+            "引き継ぎ傾向と長期的な安定性を兼備"
+        },
+        ("carryover", "interval") or ("interval", "carryover") => new[]
+        {
+            "前回からの引き継ぎと出目間隔の両面で期待大",
+            "引き継ぎの流れに加え、間隔的にも出やすい状況"
+        },
+        ("carryover", "balance") or ("balance", "carryover") => new[]
+        {
+            "前回からの引き継ぎ傾向とバランスを兼備",
+            "連続出現の可能性が高く、バランスも良好"
+        },
+        _ => Array.Empty<string>()
+    };
 }

@@ -28,6 +28,12 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Calculate scores
+        run: |
+          dotnet run --project tools/ScoreCalculator/ScoreCalculator.csproj -- \
+            NekoLoto6/NekoLoto6.Client/wwwroot/data/LOTO6_ALL.csv \
+            NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json
+
       - name: Publish
         run: dotnet publish NekoLoto6/NekoLoto6.Client/NekoLoto6.Client.csproj -c Release -p:GHPages=true -o publish
 

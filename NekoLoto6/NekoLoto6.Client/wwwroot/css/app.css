@@ -72,6 +72,20 @@ h1:focus {
     color: #f5a623;
 }
 
+.predict-meta {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 13px;
+    color: #667788;
+    margin-bottom: 1.5rem;
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 /* === Card Dark === */
 .card-dark {
     background-color: #1a2332;
@@ -282,6 +296,13 @@ h1:focus {
 
 .predict-reason-row:last-child {
     border-bottom: none;
+}
+
+.predict-reason-arrow {
+    color: #556677;
+    margin-right: 8px;
+    font-size: 14px;
+    flex-shrink: 0;
 }
 
 .predict-reason-text {
