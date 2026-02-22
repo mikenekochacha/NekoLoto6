@@ -28,7 +28,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Publish Blazor WebAssembly
-        run: dotnet publish NekoLoto6/NekoLoto6.Client/NekoLoto6.Client.csproj -c Release -o publish
+        run: dotnet publish NekoLoto6/NekoLoto6.Client/NekoLoto6.Client.csproj -c Release -o publish -p:GHPages=true
 
       - name: Fix for GitHub Pages
         run: |
@@ -37,13 +37,6 @@ jobs:
           find publish/wwwroot -name "*.gz" -delete
           # _framework/dotnet.js 内の integrity ハッシュ行を丸ごと削除
           sed -i '/"integrity": "sha256-/d' publish/wwwroot/_framework/dotnet.js
-
-      - name: Prepare GitHub Pages files
-        run: |
-          # .nojekyll を追加（Jekyllビルドを無効化）
-          touch publish/wwwroot/.nojekyll
-          # 404.html を追加（SPAルーティング対応）
-          cp publish/wwwroot/index.html publish/wwwroot/404.html
           # favicon.png をサーバープロジェクトからコピー
           cp NekoLoto6/NekoLoto6/wwwroot/favicon.png publish/wwwroot/favicon.png
 
