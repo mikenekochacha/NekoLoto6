@@ -6,7 +6,7 @@ using NekoLoto6.Client.Services;
 public static class HtmlGenerator
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
-    private const string SiteBase = "https://mikenekochacha.github.io/NekoLoto6/";
+    private const string SiteBase = "https://nekocode.tech/";
 
     public static void GenerateAll(
         string wwwrootDir,
@@ -514,7 +514,7 @@ public static class HtmlGenerator
         sb.AppendLine("    <meta charset=\"utf-8\" />");
         sb.AppendLine("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />");
         sb.AppendLine($"    <title>{seo.Title}</title>");
-        sb.AppendLine("    <base href=\"/NekoLoto6/\" />");
+        sb.AppendLine("    <base href=\"/\" />");
         sb.AppendLine("    <link rel=\"icon\" type=\"image/png\" href=\"favicon.png\" />");
         sb.AppendLine("    <link rel=\"stylesheet\" href=\"css/app.css\" />");
         sb.AppendLine("    <meta name=\"robots\" content=\"index, follow\" />");
