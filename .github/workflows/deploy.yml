@@ -30,6 +30,14 @@ jobs:
       - name: Publish Blazor WebAssembly
         run: dotnet publish NekoLoto6/NekoLoto6.Client/NekoLoto6.Client.csproj -c Release -o publish
 
+      - name: Fix for GitHub Pages
+        run: |
+          # GitHub Pagesは圧縮ファイルを正しく返せないため削除
+          find publish/wwwroot -name "*.br" -delete
+          find publish/wwwroot -name "*.gz" -delete
+          # _framework/dotnet.js 内の integrity ハッシュを除去
+          sed -i 's/"integrity"\s*:\s*"[^"]*"//g' publish/wwwroot/_framework/dotnet.js
+
       - name: Prepare GitHub Pages files
         run: |
           # .nojekyll を追加（Jekyllビルドを無効化）
