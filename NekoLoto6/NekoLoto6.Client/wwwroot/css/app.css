@@ -1,23 +1,28 @@
+/* === Global Dark Theme === */
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background-color: #0f1923;
+    color: #e8e8e8;
+    margin: 0;
+    padding: 0;
 }
 
 a, .btn-link {
-    color: #006bb7;
+    color: #f5a623;
+}
+
+a:hover {
+    color: #ffc560;
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: #f5a623;
+    border-color: #e09520;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-.content {
-    padding-top: 1.1rem;
+    box-shadow: 0 0 0 0.1rem rgba(15, 25, 35, 0.5), 0 0 0 0.25rem rgba(245, 166, 35, 0.4);
 }
 
 h1:focus {
@@ -33,7 +38,7 @@ h1:focus {
 }
 
 .validation-message {
-    color: #e50000;
+    color: #ff6b6b;
 }
 
 .blazor-error-boundary {
@@ -46,6 +51,202 @@ h1:focus {
         content: "An error has occurred."
     }
 
-.darker-border-checkbox.form-check-input {
-    border-color: #929292;
+/* === Page Title === */
+.page-title {
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #f5a623;
+    display: inline-block;
+}
+
+.page-subtitle {
+    color: #8899aa;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-subtitle strong {
+    color: #f5a623;
+}
+
+/* === Card Dark === */
+.card-dark {
+    background-color: #1a2332;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-dark-title {
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-top: 0.5rem;
+    border-top: 3px solid #f5a623;
+    display: inline-block;
+}
+
+/* === Loading & Error === */
+.loading-text {
+    color: #8899aa;
+    font-size: 1rem;
+}
+
+.error-text {
+    color: #ff6b6b;
+}
+
+/* === Number Badge (Loto Ball Style) === */
+.num-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f5a623, #e09520);
+    color: #0f1923;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    margin-right: 8px;
+}
+
+/* === Frequency Chart (Home) === */
+.frequency-chart {
+    max-width: 700px;
+}
+
+.freq-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+    height: 34px;
+    padding: 0 4px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.freq-row:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.freq-bar-bg {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    height: 20px;
+    overflow: hidden;
+}
+
+.freq-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4a9eff, #2d7cd6);
+    border-radius: 4px;
+    min-width: 2px;
+    transition: width 0.3s ease;
+}
+
+.freq-count {
+    width: 70px;
+    text-align: right;
+    font-size: 13px;
+    margin-left: 8px;
+    color: #8899aa;
+}
+
+/* === Stat Chart (Statistics) === */
+.stat-section {
+    margin-bottom: 1.5rem;
+}
+
+.stat-chart {
+    max-width: 700px;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+    height: 32px;
+    padding: 0 4px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.stat-row:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.stat-label {
+    width: 80px;
+    font-weight: 600;
+    text-align: right;
+    margin-right: 8px;
+    font-size: 14px;
+    white-space: nowrap;
+    color: #c0c8d0;
+}
+
+.stat-label-wide {
+    width: 70px;
+}
+
+.stat-bar-bg {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    height: 20px;
+    overflow: hidden;
+}
+
+.stat-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #4a9eff, #2d7cd6);
+    border-radius: 4px;
+    min-width: 2px;
+    transition: width 0.3s ease;
+}
+
+.stat-bar-highlight {
+    background: linear-gradient(90deg, #ff6b35, #e05520);
+}
+
+.stat-count {
+    width: 130px;
+    text-align: right;
+    font-size: 13px;
+    margin-left: 8px;
+    color: #8899aa;
+    white-space: nowrap;
+}
+
+/* === Stat Summary Badges === */
+.stat-summary {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    max-width: 700px;
+    font-size: 14px;
+    color: #8899aa;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stat-summary strong {
+    color: #f5a623;
+}
+
+.stat-note {
+    font-size: 13px;
+    color: #667788;
+    margin-bottom: 8px;
 }

@@ -5,23 +5,23 @@
 
 <PageTitle>ロト6 統計分析</PageTitle>
 
-<h1>ロト6 統計分析</h1>
+<h1 class="page-title">📊 ロト6 統計分析</h1>
 
 @if (_loading)
 {
-    <p>読み込み中...</p>
+    <p class="loading-text">読み込み中...</p>
 }
 else if (_error is not null)
 {
-    <p style="color: red;">エラー: @_error</p>
+    <p class="error-text">エラー: @_error</p>
 }
 else
 {
-    <p>全 <strong>@_totalDraws</strong> 回の抽選データを分析</p>
+    <p class="page-subtitle">全 <strong>@_totalDraws</strong> 回の抽選データを分析</p>
 
     @* セクション1: 偶数・奇数バランス *@
-    <section class="stat-section">
-        <h2>偶数・奇数バランス</h2>
+    <div class="card-dark">
+        <h2 class="card-dark-title">偶数・奇数バランス</h2>
         <div class="stat-chart">
             @for (var i = 0; i < _evenOdd!.Patterns.Count; i++)
             {
@@ -39,11 +39,11 @@ else
                 </div>
             }
         </div>
-    </section>
+    </div>
 
     @* セクション2: 高低バランス *@
-    <section class="stat-section">
-        <h2>高低バランス（低1-21 / 高22-43）</h2>
+    <div class="card-dark">
+        <h2 class="card-dark-title">高低バランス（低1-21 / 高22-43）</h2>
         <div class="stat-chart">
             @for (var i = 0; i < _highLow!.Patterns.Count; i++)
             {
@@ -61,11 +61,11 @@ else
                 </div>
             }
         </div>
-    </section>
+    </div>
 
     @* セクション3: 合計値の分布 *@
-    <section class="stat-section">
-        <h2>本数字 合計値の分布</h2>
+    <div class="card-dark">
+        <h2 class="card-dark-title">本数字 合計値の分布</h2>
         <div class="stat-summary">
             <span>平均: <strong>@_sumRange!.Average.ToString("F1")</strong></span>
             <span>中央値: <strong>@_sumRange.Median.ToString("F1")</strong></span>
@@ -88,11 +88,11 @@ else
                 </div>
             }
         </div>
-    </section>
+    </div>
 
     @* セクション4: 連番分析 *@
-    <section class="stat-section">
-        <h2>連番（連続数字）の出現分析</h2>
+    <div class="card-dark">
+        <h2 class="card-dark-title">連番（連続数字）の出現分析</h2>
         <p class="stat-note">連番とは、隣り合う数字（例: 5,6 や 12,13,14）のことです</p>
         <div class="stat-chart">
             @for (var i = 0; i < _consecutive!.Patterns.Count; i++)
@@ -111,7 +111,7 @@ else
                 </div>
             }
         </div>
-    </section>
+    </div>
 }
 
 @code {
