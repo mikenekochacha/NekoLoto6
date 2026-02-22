@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="..\..\NekoLoto6\NekoLoto6.Client\Models\LotoResult.cs" Link="Models\LotoResult.cs" />
     <Compile Include="..\..\NekoLoto6\NekoLoto6.Client\Services\LotoPredictionService.cs" Link="Services\LotoPredictionService.cs" />
+    <Compile Include="..\..\NekoLoto6\NekoLoto6.Client\Services\LotoStatisticsService.cs" Link="Services\LotoStatisticsService.cs" />
   </ItemGroup>
 
 </Project>

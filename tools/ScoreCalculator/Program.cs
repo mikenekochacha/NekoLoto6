@@ -4,14 +4,15 @@ using System.Text.Json.Serialization;
 using NekoLoto6.Client.Models;
 using NekoLoto6.Client.Services;
 
-if (args.Length < 2)
+if (args.Length < 3)
 {
-    Console.Error.WriteLine("Usage: ScoreCalculator <csv-path> <output-json-path>");
+    Console.Error.WriteLine("Usage: ScoreCalculator <csv-path> <output-json-path> <wwwroot-dir>");
     return 1;
 }
 
 var csvPath = args[0];
 var outputPath = args[1];
+var wwwrootDir = args[2];
 
 if (!File.Exists(csvPath))
 {
@@ -97,9 +98,11 @@ var allScores = prediction.AllScores.Select(s => new
     isCarriedOver = s.IsCarriedOver
 }).ToList();
 
+var lastUpdated = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(9)).ToString("yyyy-MM-ddTHH:mm:sszzz");
+
 var output = new
 {
-    lastUpdated = DateTimeOffset.UtcNow.ToOffset(TimeSpan.FromHours(9)).ToString("yyyy-MM-ddTHH:mm:sszzz"),
+    lastUpdated,
     totalDrawings = results.Count,
     recentDraws = prediction.RecentDraws,
     latestDrawing = new
@@ -130,4 +133,10 @@ if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
 File.WriteAllText(outputPath, json);
 
 Console.WriteLine($"[INFO] prediction.json 出力完了: {outputPath}");
+
+// --- HTML生成 ---
+Console.WriteLine($"[INFO] HTML生成開始: {wwwrootDir}");
+HtmlGenerator.GenerateAll(wwwrootDir, results, prediction, latest, lastUpdated);
+Console.WriteLine("[INFO] HTML生成完了: index.html, frequency.html, statistics.html, 404.html");
+
 return 0;

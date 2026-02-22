@@ -28,30 +28,17 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Calculate scores
+      - name: Generate site
         run: |
           dotnet run --project tools/ScoreCalculator/ScoreCalculator.csproj -- \
             NekoLoto6/NekoLoto6.Client/wwwroot/data/LOTO6_ALL.csv \
-            NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json
-
-      - name: Publish
-        run: dotnet publish NekoLoto6/NekoLoto6.Client/NekoLoto6.Client.csproj -c Release -p:GHPages=true -o publish
-
-      - name: List publish output
-        run: |
-          echo "=== wwwroot contents ==="
-          ls -la publish/wwwroot/
-          echo "=== _framework file count ==="
-          ls publish/wwwroot/_framework/ | wc -l
-          echo "=== .br file count ==="
-          find publish/wwwroot/_framework/ -name "*.br" | wc -l
-          echo "=== .wasm file count ==="
-          find publish/wwwroot/_framework/ -name "*.wasm" | wc -l
+            NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json \
+            NekoLoto6/NekoLoto6.Client/wwwroot
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: publish/wwwroot
+          path: NekoLoto6/NekoLoto6.Client/wwwroot
 
       - name: Deploy to GitHub Pages
         id: deployment

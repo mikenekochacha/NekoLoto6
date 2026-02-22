@@ -50,15 +50,16 @@ jobs:
           echo "::notice::データの更新はありませんでした。"
           exit 0
 
-      # Step 3: スコア再計算（C#）
-      - name: Calculate scores
+      # Step 3: スコア再計算 + HTML生成
+      - name: Generate site
         if: steps.fetch.outputs.updated == 'true'
         run: |
           dotnet run --project tools/ScoreCalculator/ScoreCalculator.csproj -- \
             NekoLoto6/NekoLoto6.Client/wwwroot/data/LOTO6_ALL.csv \
-            NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json
+            NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json \
+            NekoLoto6/NekoLoto6.Client/wwwroot
 
-      # Step 4: 変更をコミット
+      # Step 4: 変更をコミット（CSV + prediction.json のみ）
       - name: Commit updated data
         if: steps.fetch.outputs.updated == 'true'
         run: |
@@ -69,19 +70,12 @@ jobs:
           git commit -m "data: 第${{ steps.fetch.outputs.latest_draw }}回のデータを更新"
           git push
 
-      # Step 5: サイトをビルド
-      - name: Publish site
-        if: steps.fetch.outputs.updated == 'true'
-        run: |
-          dotnet publish NekoLoto6/NekoLoto6.Client/NekoLoto6.Client.csproj \
-            -c Release -p:GHPages=true -o publish
-
-      # Step 6: GitHub Pagesにデプロイ
+      # Step 5: GitHub Pagesにデプロイ
       - name: Upload artifact
         if: steps.fetch.outputs.updated == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: publish/wwwroot
+          path: NekoLoto6/NekoLoto6.Client/wwwroot
 
       - name: Deploy to GitHub Pages
         if: steps.fetch.outputs.updated == 'true'
