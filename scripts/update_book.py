@@ -45,12 +45,12 @@ def update_current_book():
   "title": "本のタイトル",
   "author": "著者名",
   "asin": "ASINコード（10桁英数字）",
-  "comment": "書店員としての紹介文（80〜120文字）。吹き出しPOP風。柔らかい口調で。"
+  "comment": "書店員としての紹介文（200〜250文字）。吹き出しPOP風。柔らかい口調で。"
 }}"""
 
     message = client.messages.create(
         model="claude-opus-4-6",
-        max_tokens=512,
+        max_tokens=1024,
         messages=[{"role": "user", "content": prompt}]
     )
 
