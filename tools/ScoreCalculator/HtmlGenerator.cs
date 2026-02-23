@@ -595,6 +595,7 @@ public static class HtmlGenerator
         sb.AppendLine("            </article>");
         sb.AppendLine("        </main>");
         sb.AppendLine("    </div>");
+        sb.AppendLine("    <script src=\"js/book_widget.js\"></script>");
         sb.AppendLine("</body>");
         sb.AppendLine("</html>");
 
@@ -670,6 +671,24 @@ public static class HtmlGenerator
         }
 
         sb.AppendLine("                </nav>");
+        sb.AppendLine("            </div>");
+        sb.AppendLine("            <div class=\"book-widget\">");
+        sb.AppendLine("                <div class=\"book-widget-label\">\U0001F4DA 今週の一冊</div>");
+        sb.AppendLine("                <div class=\"book-widget-inner\">");
+        sb.AppendLine("                    <a id=\"book-link\" href=\"#\" target=\"_blank\" rel=\"noopener\">");
+        sb.AppendLine("                        <img id=\"book-cover\" src=\"\" alt=\"今週の一冊\" class=\"book-cover-img\" />");
+        sb.AppendLine("                    </a>");
+        sb.AppendLine("                    <div class=\"book-info\">");
+        sb.AppendLine("                        <div id=\"book-title\" class=\"book-title\"></div>");
+        sb.AppendLine("                        <div id=\"book-author\" class=\"book-author\"></div>");
+        sb.AppendLine("                    </div>");
+        sb.AppendLine("                </div>");
+        sb.AppendLine("                <div class=\"book-pop\">");
+        sb.AppendLine("                    <div id=\"book-comment\" class=\"book-comment\"></div>");
+        sb.AppendLine("                </div>");
+        sb.AppendLine("                <a id=\"book-btn\" href=\"#\" target=\"_blank\" rel=\"noopener\" class=\"book-btn\">");
+        sb.AppendLine("                    Amazonで見る \u2192");
+        sb.AppendLine("                </a>");
         sb.AppendLine("            </div>");
         return sb.ToString();
     }
