@@ -5,6 +5,9 @@ on:
     - cron: '30 11 * * 1'  # 毎週月曜日 20:30 JST
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update-book:
     runs-on: ubuntu-latest
