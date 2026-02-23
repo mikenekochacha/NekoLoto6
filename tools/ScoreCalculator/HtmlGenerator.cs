@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Json;
 using NekoLoto6.Client.Models;
 using NekoLoto6.Client.Services;
 
@@ -35,6 +36,11 @@ public static class HtmlGenerator
         File.WriteAllText(
             Path.Combine(wwwrootDir, "algorithm.html"),
             GenerateAlgorithmPage(results),
+            Encoding.UTF8);
+
+        File.WriteAllText(
+            Path.Combine(wwwrootDir, "books.html"),
+            GenerateBooksPage(wwwrootDir),
             Encoding.UTF8);
 
         File.WriteAllText(
@@ -320,6 +326,73 @@ public static class HtmlGenerator
             sb.AppendLine("        </div>");
         }
     }
+
+    private static string GenerateBooksPage(string wwwrootDir)
+    {
+        var sb = new StringBuilder();
+        const string affiliateTag = "nekocode-22";
+
+        sb.AppendLine("<h1 class=\"page-title\">\U0001F4DA おすすめの本</h1>");
+        sb.AppendLine("<p class=\"page-subtitle\">統計・確率・データ分析に関する書籍を毎週紹介しています</p>");
+
+        // book_history.json を読み込み
+        var historyPath = Path.Combine(wwwrootDir, "data", "book_history.json");
+        if (File.Exists(historyPath))
+        {
+            var json = File.ReadAllText(historyPath, Encoding.UTF8);
+            using var doc = JsonDocument.Parse(json);
+            var books = doc.RootElement;
+
+            foreach (var book in books.EnumerateArray())
+            {
+                var title = book.GetProperty("title").GetString() ?? "";
+                var author = book.GetProperty("author").GetString() ?? "";
+                var asin = book.GetProperty("asin").GetString() ?? "";
+                var comment = book.GetProperty("comment").GetString() ?? "";
+                var date = book.TryGetProperty("date", out var dateProp) ? dateProp.GetString() ?? "" : "";
+                var amazonUrl = $"https://www.amazon.co.jp/dp/{asin}/?tag={affiliateTag}";
+                var imageUrl = $"https://m.media-amazon.com/images/P/{asin}.01._SL160_.jpg";
+
+                sb.AppendLine("    <div class=\"card-dark book-card\">");
+                sb.AppendLine("        <div class=\"book-card-inner\">");
+                sb.AppendLine("            <div class=\"book-card-cover\">");
+                sb.AppendLine($"                <a href=\"{amazonUrl}\" target=\"_blank\" rel=\"noopener\">");
+                sb.AppendLine($"                    <img src=\"{imageUrl}\" alt=\"{EscapeAttr(title)}\" class=\"book-card-img\" />");
+                sb.AppendLine("                </a>");
+                sb.AppendLine("            </div>");
+                sb.AppendLine("            <div class=\"book-card-info\">");
+                sb.AppendLine($"                <div class=\"book-card-title\">{EscapeHtml(title)}</div>");
+                sb.AppendLine($"                <div class=\"book-card-author\">{EscapeHtml(author)}</div>");
+                if (!string.IsNullOrEmpty(date))
+                    sb.AppendLine($"                <div class=\"book-card-date\">紹介日: {date}</div>");
+                sb.AppendLine($"                <div class=\"book-card-comment\">{EscapeHtml(comment)}</div>");
+                sb.AppendLine($"                <a href=\"{amazonUrl}\" target=\"_blank\" rel=\"noopener\" class=\"book-btn\">Amazonで見る \u2192</a>");
+                sb.AppendLine("            </div>");
+                sb.AppendLine("        </div>");
+                sb.AppendLine("    </div>");
+            }
+        }
+        else
+        {
+            sb.AppendLine("<div class=\"card-dark\">");
+            sb.AppendLine("    <p class=\"algo-text\">まだ紹介した本がありません。</p>");
+            sb.AppendLine("</div>");
+        }
+
+        return WrapPage(new PageSeo(
+            Title: "おすすめの本 | NekoLoto6",
+            Description: "NekoLoto6がおすすめする統計・確率・データ分析に関する書籍一覧。毎週1冊、書店員風の紹介文とともにお届けします。",
+            Keywords: "ロト6,統計,本,おすすめ,確率,データ分析,書籍,loto6",
+            FileName: "books.html",
+            ActivePage: "books",
+            JsonLdType: "WebPage",
+            JsonLdName: "おすすめの本",
+            JsonLdDescription: "統計・確率・データ分析に関するおすすめ書籍一覧"
+        ), sb.ToString());
+    }
+
+    private static string EscapeHtml(string s) =>
+        s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 
     private static string Generate404Page()
     {
@@ -618,7 +691,8 @@ public static class HtmlGenerator
             (SiteBase, "1.0", "weekly"),
             ($"{SiteBase}frequency.html", "0.8", "weekly"),
             ($"{SiteBase}statistics.html", "0.8", "weekly"),
-            ($"{SiteBase}algorithm.html", "0.6", "monthly")
+            ($"{SiteBase}algorithm.html", "0.6", "monthly"),
+            ($"{SiteBase}books.html", "0.6", "weekly")
         };
 
         foreach (var (url, priority, changefreq) in pages)
@@ -657,7 +731,8 @@ public static class HtmlGenerator
             ("index", "", "bi-crosshair-nav-menu", "次回予想"),
             ("frequency", "frequency.html", "bi-bar-chart-fill-nav-menu", "出現回数"),
             ("statistics", "statistics.html", "bi-graph-up-nav-menu", "統計分析"),
-            ("algorithm", "algorithm.html", "bi-question-circle-nav-menu", "予想の仕組み")
+            ("algorithm", "algorithm.html", "bi-question-circle-nav-menu", "予想の仕組み"),
+            ("books", "books.html", "bi-book-nav-menu", "おすすめの本")
         };
 
         foreach (var (page, href, icon, label) in navItems)
