@@ -1,6 +1,7 @@
 import anthropic
 import json
 import os
+from datetime import date
 from pathlib import Path
 
 def load_book_history():
@@ -61,6 +62,7 @@ def update_current_book():
         lines = [l for l in lines if not l.startswith("```")]
         response_text = "\n".join(lines).strip()
     new_book = json.loads(response_text)
+    new_book["date"] = date.today().isoformat()
 
     current_path = Path("NekoLoto6/NekoLoto6.Client/wwwroot/data/current_book.json")
     with open(current_path, "w", encoding="utf-8") as f:
