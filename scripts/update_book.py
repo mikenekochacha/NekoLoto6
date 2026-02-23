@@ -54,6 +54,11 @@ def update_current_book():
     )
 
     response_text = message.content[0].text.strip()
+    # マークダウンコードブロックを除去
+    if response_text.startswith("```"):
+        lines = response_text.split("\n")
+        lines = [l for l in lines if not l.startswith("```")]
+        response_text = "\n".join(lines).strip()
     new_book = json.loads(response_text)
 
     current_path = Path("NekoLoto6/NekoLoto6.Client/wwwroot/data/current_book.json")
