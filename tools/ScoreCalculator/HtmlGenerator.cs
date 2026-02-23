@@ -518,7 +518,6 @@ public static class HtmlGenerator
         sb.AppendLine("    <link rel=\"icon\" type=\"image/png\" href=\"favicon.png\" />");
         sb.AppendLine("    <link rel=\"stylesheet\" href=\"css/app.css\" />");
         sb.AppendLine("    <meta name=\"robots\" content=\"index, follow\" />");
-        sb.AppendLine("    <meta name=\"google-site-verification\" content=\"google2efd067fa30bc9b6\" />");
         sb.AppendLine("    <meta name=\"google-site-verification\" content=\"yqbEH6Qg4beJUyyS_tuCdfW_LIdGOV5aABe3WizdtZk\" />");
         sb.AppendLine("    <meta name=\"author\" content=\"NekoLoto6\" />");
         sb.AppendLine("    <meta name=\"theme-color\" content=\"#1a1a2e\" />");
