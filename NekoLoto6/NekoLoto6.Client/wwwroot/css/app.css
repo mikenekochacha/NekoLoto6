@@ -785,3 +785,110 @@ main {
     line-height: 1.7;
     margin-bottom: 0.5rem;
 }
+
+/* === Book Widget === */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-scrollable {
+    flex: 1;
+}
+
+.book-widget {
+    margin-top: auto;
+    padding: 12px 14px 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: '游ゴシック', 'Yu Gothic', sans-serif;
+}
+
+.book-widget-label {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+.book-widget-inner {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.book-cover-img {
+    width: 60px;
+    min-width: 60px;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.15);
+}
+
+.book-info {
+    flex: 1;
+}
+
+.book-title {
+    font-size: 0.78rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.4;
+    margin-bottom: 4px;
+}
+
+.book-author {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.book-pop {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+}
+
+.book-pop::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 20px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 7px solid rgba(255, 255, 255, 0.1);
+}
+
+.book-pop::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 20px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 7px solid rgba(30, 30, 30, 0.9);
+}
+
+.book-comment {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.6;
+}
+
+.book-btn {
+    display: block;
+    text-align: center;
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    padding: 5px 0;
+    transition: background 0.2s;
+}
+
+.book-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+}
