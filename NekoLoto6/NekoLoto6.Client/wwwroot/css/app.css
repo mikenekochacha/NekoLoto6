@@ -813,19 +813,21 @@ main {
 
 .book-widget-inner {
     display: flex;
-    gap: 10px;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
     margin-bottom: 10px;
 }
 
 .book-cover-img {
-    width: 60px;
-    min-width: 60px;
+    width: 120px;
+    min-width: 120px;
     box-shadow: 1px 1px 4px rgba(0,0,0,0.15);
 }
 
 .book-info {
-    flex: 1;
+    width: 100%;
+    text-align: center;
 }
 
 .book-title {
