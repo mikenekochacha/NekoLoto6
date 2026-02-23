@@ -80,6 +80,7 @@ jobs:
           mv _site/nekoloto6/robots.txt _site/robots.txt
           mv _site/nekoloto6/sitemap.xml _site/sitemap.xml
           mv _site/nekoloto6/.nojekyll _site/.nojekyll
+          mv _site/nekoloto6/google2efd067fa30bc9b6.html _site/google2efd067fa30bc9b6.html
           cat > _site/index.html <<'REDIRECT'
           <!DOCTYPE html>
           <html lang="ja">
