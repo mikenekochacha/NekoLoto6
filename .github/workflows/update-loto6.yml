@@ -68,6 +68,7 @@ jobs:
           git add NekoLoto6/NekoLoto6.Client/wwwroot/data/LOTO6_ALL.csv
           git add NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json
           git commit -m "data: 第${{ steps.fetch.outputs.latest_draw }}回のデータを更新"
+          git pull --rebase origin main
           git push
 
       # Step 5: デプロイ用ディレクトリ構成

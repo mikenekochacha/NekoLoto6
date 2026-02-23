@@ -36,6 +36,7 @@ jobs:
           git add NekoLoto6/NekoLoto6.Client/wwwroot/data/current_book.json
           git add NekoLoto6/NekoLoto6.Client/wwwroot/data/book_history.json
           git diff --staged --quiet || git commit -m "Weekly book update"
+          git pull --rebase origin main
           git push
 
       - name: Trigger deploy

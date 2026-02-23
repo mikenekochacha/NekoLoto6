@@ -28,9 +28,10 @@ public class NumberScore
 
 public static class LotoPredictionService
 {
-    private const int RecentCount = 50;
-    private const double WeightFrequency = 0.20;
-    private const double WeightTrend = 0.30;
+    private const int RecentCount = 20;
+    private const double WeightFreqAll = 0.70;    // 全体頻度の比率
+    private const double WeightFreqRecent = 0.30;  // 直近頻度の比率
+    private const double WeightBlendedFreq = 0.50; // 加重平均頻度の総ウェイト
     private const double WeightInterval = 0.20;
     private const double WeightBalance = 0.10;
     private const double WeightCarryover = 0.20;
@@ -51,7 +52,7 @@ public static class LotoPredictionService
                 if (num >= 1 && num <= 43)
                     scores[num].TotalAppearances++;
 
-        // 直近50回の出現回数
+        // 直近20回の出現回数
         foreach (var result in recentResults)
             foreach (var num in result.MainNumbers)
                 if (num >= 1 && num <= 43)
@@ -75,7 +76,7 @@ public static class LotoPredictionService
                 scores[num].DrawsSinceLastAppearance = totalDraws;
         }
 
-        // スコア1: 出現頻度スコア（正規化）
+        // スコア1: 全体頻度スコア（正規化）
         var allAppearances = Enumerable.Range(1, 43).Select(n => scores[n].TotalAppearances).ToArray();
         var minFreq = allAppearances.Min();
         var maxFreq = allAppearances.Max();
@@ -91,6 +92,19 @@ public static class LotoPredictionService
         for (var num = 1; num <= 43; num++)
             scores[num].TrendScore = maxRecent > minRecent
                 ? (double)(scores[num].RecentAppearances - minRecent) / (maxRecent - minRecent)
+                : 0.5;
+
+        // 加重平均頻度スコア（全体70% + 直近30%）を正規化
+        var blendedRaw = new double[44];
+        for (var num = 1; num <= 43; num++)
+            blendedRaw[num] = scores[num].FrequencyScore * WeightFreqAll + scores[num].TrendScore * WeightFreqRecent;
+        var blendedVals = Enumerable.Range(1, 43).Select(n => blendedRaw[n]).ToArray();
+        var minBlend = blendedVals.Min();
+        var maxBlend = blendedVals.Max();
+        var blendedNorm = new double[44];
+        for (var num = 1; num <= 43; num++)
+            blendedNorm[num] = maxBlend > minBlend
+                ? (blendedRaw[num] - minBlend) / (maxBlend - minBlend)
                 : 0.5;
 
         // スコア3: 出目間隔スコア（正規化、間隔が大きいほど高い）
@@ -142,8 +156,7 @@ public static class LotoPredictionService
         // 仮の合計スコア（バランス補正前）
         for (var num = 1; num <= 43; num++)
             scores[num].TotalScore =
-                scores[num].FrequencyScore * WeightFrequency +
-                scores[num].TrendScore * WeightTrend +
+                blendedNorm[num] * WeightBlendedFreq +
                 scores[num].IntervalScore * WeightInterval +
                 scores[num].BalanceScore * WeightBalance +
                 scores[num].CarryoverScore * WeightCarryover;
@@ -151,14 +164,16 @@ public static class LotoPredictionService
         // 上位候補から6数字を選出（バランス補正を適用）
         var selected = SelectWithBalance(scores);
 
+        // 前回当選番号から最低1個を保証
+        selected = EnsureCarryover(selected, scores, lastNumbers, blendedNorm);
+
         // 選出された数字のバランススコアを更新
         UpdateBalanceScores(scores, selected);
 
         // 最終スコア再計算
         for (var num = 1; num <= 43; num++)
             scores[num].TotalScore =
-                scores[num].FrequencyScore * WeightFrequency +
-                scores[num].TrendScore * WeightTrend +
+                blendedNorm[num] * WeightBlendedFreq +
                 scores[num].IntervalScore * WeightInterval +
                 scores[num].BalanceScore * WeightBalance +
                 scores[num].CarryoverScore * WeightCarryover;
@@ -222,6 +237,28 @@ public static class LotoPredictionService
         return selected;
     }
 
+    private static List<int> EnsureCarryover(List<int> selected, NumberScore[] scores,
+        HashSet<int> lastNumbers, double[] blendedNorm)
+    {
+        if (lastNumbers.Count == 0 || selected.Any(n => lastNumbers.Contains(n)))
+            return selected;
+
+        // 前回当選番号のうち最もスコアが高いものを選ぶ
+        var bestCarry = lastNumbers
+            .OrderByDescending(n => scores[n].TotalScore)
+            .First();
+
+        // 選出済み6個のうち最もスコアが低いものと入れ替え
+        var worstInSelected = selected
+            .OrderBy(n => scores[n].TotalScore)
+            .First();
+
+        var result = new List<int>(selected);
+        result.Remove(worstInSelected);
+        result.Add(bestCarry);
+        return result;
+    }
+
     public static string GetReasonText(NumberScore score)
     {
         var indicators = new (string key, double value)[]
@@ -242,7 +279,7 @@ public static class LotoPredictionService
         {
             var pair = (top, second);
             if (pair is ("trend", "frequency") or ("frequency", "trend"))
-                return "直近50回で勢いがあり、全期間でも安定して出現";
+                return "直近20回で勢いがあり、全期間でも安定して出現";
             if (pair is ("trend", "interval") or ("interval", "trend"))
                 return "直近の勢いがあり、出目間隔的にも好タイミング";
             if (pair is ("frequency", "interval") or ("interval", "frequency"))
@@ -266,7 +303,7 @@ public static class LotoPredictionService
         return top switch
         {
             "frequency" => "全期間での出現率が高く、安定した数字",
-            "trend" => "直近50回で特に勢いがある注目数字",
+            "trend" => "直近20回で特に勢いがある注目数字",
             "interval" => "しばらく出ていないため、そろそろ出る可能性",
             "balance" => "バランスが非常に良く、総合力が高い数字",
             "carryover" => "前回も出現しており、引き継がれやすい傾向の数字",
