@@ -59,7 +59,8 @@ jobs:
             NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json \
             NekoLoto6/NekoLoto6.Client/wwwroot
 
-      # Step 4: 変更をコミット（CSV + prediction.json のみ）
+      # Step 4: 変更をコミット（dotnet run が生成する全ファイル）
+      # NOTE: HtmlGenerator.cs にページを追加した場合はここにも追加すること
       - name: Commit updated data
         if: steps.fetch.outputs.updated == 'true'
         run: |
@@ -67,7 +68,14 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add NekoLoto6/NekoLoto6.Client/wwwroot/data/LOTO6_ALL.csv
           git add NekoLoto6/NekoLoto6.Client/wwwroot/data/prediction.json
-          git commit -m "data: 第${{ steps.fetch.outputs.latest_draw }}回のデータを更新"
+          git add NekoLoto6/NekoLoto6.Client/wwwroot/index.html
+          git add NekoLoto6/NekoLoto6.Client/wwwroot/frequency.html
+          git add NekoLoto6/NekoLoto6.Client/wwwroot/statistics.html
+          git add NekoLoto6/NekoLoto6.Client/wwwroot/algorithm.html
+          git add NekoLoto6/NekoLoto6.Client/wwwroot/404.html
+          git add NekoLoto6/NekoLoto6.Client/wwwroot/sitemap.xml
+          git add NekoLoto6/NekoLoto6.Client/wwwroot/robots.txt
+          git commit -m "data: 第${{ steps.fetch.outputs.latest_draw }}回のデータを更新 [skip ci]"
           git pull --rebase origin main
           git push
 

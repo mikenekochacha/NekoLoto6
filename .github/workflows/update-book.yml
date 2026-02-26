@@ -2,7 +2,7 @@ name: Update Weekly Book
 
 on:
   schedule:
-    - cron: '30 11 * * 1'  # 毎週月曜日 20:30 JST
+    - cron: '0 13 * * 1'  # 毎週月曜日 22:00 JST
   workflow_dispatch:
 
 permissions:
